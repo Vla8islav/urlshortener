@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
+	"github.com/Vla8islav/urlshortener/internal/app/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io"
@@ -12,6 +14,8 @@ import (
 )
 
 func TestRootPageHandler(t *testing.T) {
+	short := app.URLShorten{S: storage.GetMakeshiftStorageInstance()}
+
 	type expectedResult struct {
 		code        int
 		contentType string
@@ -49,7 +53,7 @@ func TestRootPageHandler(t *testing.T) {
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 
-			RootPageHandler(w, testData.request)
+			RootPageHandler(&short)(w, testData.request)
 
 			res := w.Result()
 			// проверяем код ответа
