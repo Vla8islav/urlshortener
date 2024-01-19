@@ -47,7 +47,7 @@ func TestExpandHandler(t *testing.T) {
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 
-			ExpandHandler(&short)(w, testData.request())
+			ExpandHandler(short)(w, testData.request())
 
 			res := w.Result()
 			// получаем и проверяем тело запроса

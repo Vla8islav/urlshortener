@@ -52,7 +52,7 @@ func TestRootPageHandler(t *testing.T) {
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 
-			RootPageHandler(&short)(w, testData.request)
+			RootPageHandler(short)(w, testData.request)
 
 			res := w.Result()
 			// проверяем код ответа
