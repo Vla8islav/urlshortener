@@ -17,7 +17,14 @@ type URLShortenService struct {
 	s storage.Storage
 }
 
-func NewURLShortenService() URLShortenService {
+type URLShortenServiceMethods interface {
+	GetShortenedURL(urlToShorten string) string
+	GetFullURL(shortenedPostfix string) (string, error)
+	GenerateShortenedURL() (string, error)
+	MatchesGeneratedURLFormat(s string) bool
+}
+
+func NewURLShortenService() URLShortenServiceMethods {
 	return URLShortenService{s: storage.NewMakeshiftStorage()}
 }
 

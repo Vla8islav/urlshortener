@@ -10,7 +10,7 @@ type Handlers interface {
 	ExpandHandler(res http.ResponseWriter, req *http.Request)
 }
 
-func ExpandHandler(short *app.URLShortenService) http.HandlerFunc {
+func ExpandHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 	if short == nil {
 		panic("Service wasn't initialised")
 	}

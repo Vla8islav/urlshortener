@@ -4,7 +4,7 @@ import "sync"
 
 var mu sync.Mutex
 
-func NewMakeshiftStorage() *MakeshiftStorage {
+func NewMakeshiftStorage() Storage {
 	instance := new(MakeshiftStorage)
 	instance.urlToShort = make(map[string]string)
 	instance.shortToURL = make(map[string]string)
