@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func RootPageHandler(short *app.URLShorten) http.HandlerFunc {
+func RootPageHandler(short *app.URLShortenService) http.HandlerFunc {
 	if short == nil {
 		panic("Underlying infrastructure isn't initialised")
 	}

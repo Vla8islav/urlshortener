@@ -13,24 +13,28 @@ import (
 const AllowedSymbolsInShortnedURL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const GeneratedShortenedURLSample = "EwHXdJfB"
 
-type URLShorten struct {
-	S storage.Storage
+type URLShortenService struct {
+	s storage.Storage
 }
 
-func (u URLShorten) GetShortenedURL(urlToShorten string) string {
-	if u.S == nil {
+func NewURLShortenService() URLShortenService {
+	return URLShortenService{s: storage.NewMakeshiftStorage()}
+}
+
+func (u URLShortenService) GetShortenedURL(urlToShorten string) string {
+	if u.s == nil {
 		panic("Database not initialised")
 	}
-	//S := storage.GetMakeshiftStorageInstance()
+	//s := storage.NewMakeshiftStorage()
 	shortenedURL := ""
-	if existingShortenedURL, alreadyExist := u.S.GetShortenedURL(urlToShorten); alreadyExist {
+	if existingShortenedURL, alreadyExist := u.s.GetShortenedURL(urlToShorten); alreadyExist {
 		shortenedURL = existingShortenedURL
 	} else {
 		newShortenedURL, err := u.GenerateShortenedURL()
 		if err != nil {
 			return ""
 		}
-		u.S.AddURLPair(newShortenedURL, urlToShorten)
+		u.s.AddURLPair(newShortenedURL, urlToShorten)
 		shortenedURL = newShortenedURL
 	}
 	return shortenedURL
@@ -38,13 +42,13 @@ func (u URLShorten) GetShortenedURL(urlToShorten string) string {
 
 var ErrURLNotFound = errors.New("couldn't find a requested URL")
 
-func (u URLShorten) GetFullURL(shortenedPostfix string) (string, error) {
-	//S := storage.GetMakeshiftStorageInstance()
+func (u URLShortenService) GetFullURL(shortenedPostfix string) (string, error) {
+	//s := storage.NewMakeshiftStorage()
 	fullSortURL, err := url.JoinPath(configuration.ReadFlags().ShortenerBaseURL, shortenedPostfix)
 	if err != nil {
 		return "", err
 	}
-	longURL, found := u.S.GetFullURL(fullSortURL)
+	longURL, found := u.s.GetFullURL(fullSortURL)
 	if found {
 		return longURL, nil
 	} else {
@@ -52,7 +56,7 @@ func (u URLShorten) GetFullURL(shortenedPostfix string) (string, error) {
 	}
 }
 
-func (u URLShorten) GenerateShortenedURL() (string, error) {
+func (u URLShortenService) GenerateShortenedURL() (string, error) {
 	fullPath, err := url.JoinPath(configuration.ReadFlags().ShortenerBaseURL,
 		helpers.GenerateString(len(GeneratedShortenedURLSample), AllowedSymbolsInShortnedURL))
 	if err != nil {
@@ -61,7 +65,7 @@ func (u URLShorten) GenerateShortenedURL() (string, error) {
 	return fullPath, nil
 }
 
-func (u URLShorten) MatchesGeneratedURLFormat(s string) bool {
+func (u URLShortenService) MatchesGeneratedURLFormat(s string) bool {
 	s = strings.Trim(s, "/")
 	r, _ := regexp.Compile("^[" + AllowedSymbolsInShortnedURL + "]+$")
 	return len(s) == len(GeneratedShortenedURLSample) && r.MatchString(s)
