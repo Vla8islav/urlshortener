@@ -25,21 +25,21 @@ type MakeshiftStorage struct {
 
 func (s MakeshiftStorage) AddURLPair(shortenedURL string, fullURL string) {
 	mu.Lock()
+	defer mu.Unlock()
 	s.urlToShort[fullURL] = shortenedURL
 	s.shortToURL[shortenedURL] = fullURL
-	mu.Unlock()
 }
 
 func (s MakeshiftStorage) GetFullURL(shortenedURL string) (string, bool) {
 	mu.Lock()
+	defer mu.Unlock()
 	value, exists := s.shortToURL[shortenedURL]
-	mu.Unlock()
 	return value, exists
 }
 
 func (s MakeshiftStorage) GetShortenedURL(fullURL string) (string, bool) {
 	mu.Lock()
+	defer mu.Unlock()
 	value, exists := s.urlToShort[fullURL]
-	mu.Unlock()
 	return value, exists
 }
