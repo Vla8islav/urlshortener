@@ -14,6 +14,7 @@
 # Binaries
 cmd/shortener/main
 cmd/shortener/shortener
+cmd/shortener/use_shortener
 
 # Dependency directories (remove the comment below to include it)
 vendor/
@@ -21,3 +22,7 @@ vendor/
 # IDEs directories
 .idea
 .vscode
+
+# statictest and other binaries
+
+.tools
