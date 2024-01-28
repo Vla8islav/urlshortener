@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-var Sugar zap.SugaredLogger
-
 type (
 	// берём структуру для хранения сведений об ответе
 	responseData struct {
@@ -37,7 +35,7 @@ func (r *loggingResponseWriter) WriteHeader(statusCode int) {
 	r.responseData.status = statusCode // захватываем код статуса
 }
 
-func WithLogging(h http.HandlerFunc) http.HandlerFunc {
+func WithLogging(sugaredLogger zap.SugaredLogger, h http.HandlerFunc) http.HandlerFunc {
 	logFn := func(w http.ResponseWriter, r *http.Request) {
 		// функция Now() возвращает текущее время
 		start := time.Now()
@@ -65,7 +63,7 @@ func WithLogging(h http.HandlerFunc) http.HandlerFunc {
 		duration := time.Since(start)
 
 		// отправляем сведения о запросе в zap
-		Sugar.Infoln(
+		sugaredLogger.Infoln(
 			"uri", uri,
 			"method", method,
 			"duration", duration,

@@ -12,7 +12,7 @@ func worker(i int, ch <-chan interface{}) {
 	<-ch
 	fmt.Printf("[%v]: Started\n", i)
 	bs := bytes.NewBufferString("http://ayaginkdkzmu.net/keu3mjdqmlun/jucsjdybso6s0")
-	resp, err := http.Post("http://localhost:8080/", "text/plain; charset=utf-8", bs)
+	resp, err := http.Post("http://localhost:8889/", "text/plain; charset=utf-8", bs)
 	if err != nil {
 		panic(3)
 	}

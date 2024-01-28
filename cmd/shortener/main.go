@@ -21,13 +21,13 @@ func main() {
 	defer logger.Sync()
 
 	// делаем регистратор SugaredLogger
-	logging.Sugar = *logger.Sugar()
+	sugaredLogger := *logger.Sugar()
 
 	short := app.NewURLShortenService()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", logging.WithLogging(handlers.RootPageHandler(short)))
-	r.HandleFunc("/{slug:[A-Za-z]+}", logging.WithLogging(handlers.ExpandHandler(short)))
+	r.HandleFunc("/", logging.WithLogging(sugaredLogger, handlers.RootPageHandler(short)))
+	r.HandleFunc("/{slug:[A-Za-z]+}", logging.WithLogging(sugaredLogger, handlers.ExpandHandler(short)))
 
 	err := http.ListenAndServe(configuration.ReadFlags().ServerAddress, r)
 	if err != nil {
