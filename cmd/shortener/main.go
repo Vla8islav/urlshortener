@@ -28,7 +28,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", logging.WithLogging(sugaredLogger, handlers.RootPageHandler(short)))
 	r.HandleFunc("/{slug:[A-Za-z]+}", logging.WithLogging(sugaredLogger, handlers.ExpandHandler(short)))
-	r.HandleFunc("/api/shorten", logging.WithLogging(sugaredLogger, handlers.RootPageJsonHandler(short)))
+	r.HandleFunc("/api/shorten", logging.WithLogging(sugaredLogger, handlers.RootPageJSONHandler(short)))
 
 	err := http.ListenAndServe(configuration.ReadFlags().ServerAddress, r)
 	if err != nil {

@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func RootPageJsonHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
+func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 	if short == nil {
 		panic("Underlying infrastructure isn't initialised")
 	}
@@ -25,11 +25,11 @@ func RootPageJsonHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			http.Error(res, "Content type must be application/json", http.StatusBadRequest)
 			return
 		}
-		type UrlShortenRequest struct {
-			Url string `json:"url"`
+		type URLShortenRequest struct {
+			URL string `json:"url"`
 		}
 
-		var requestStruct UrlShortenRequest
+		var requestStruct URLShortenRequest
 
 		body, err := io.ReadAll(req.Body)
 
@@ -45,18 +45,18 @@ func RootPageJsonHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		if !helpers.CheckIfItsURL(requestStruct.Url) {
+		if !helpers.CheckIfItsURL(requestStruct.URL) {
 			http.Error(res, "Incorrect url format", http.StatusBadRequest)
 			return
 		}
 
-		shortenedURL := short.GetShortenedURL(requestStruct.Url)
+		shortenedURL := short.GetShortenedURL(requestStruct.URL)
 
-		type UrlShortenResponse struct {
+		type URLShortenResponse struct {
 			Result string `json:"result"`
 		}
 
-		responseStruct := UrlShortenResponse{Result: shortenedURL}
+		responseStruct := URLShortenResponse{Result: shortenedURL}
 		responseString, err := json.Marshal(responseStruct)
 
 		if err != nil {
