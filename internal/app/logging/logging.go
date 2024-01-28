@@ -9,9 +9,10 @@ import (
 type (
 	// берём структуру для хранения сведений об ответе
 	responseData struct {
-		status int
-		size   int
-		body   []byte
+		status            int
+		size              int
+		body              []byte
+		contentTypeHeader string
 	}
 
 	// добавляем реализацию http.ResponseWriter
@@ -26,6 +27,7 @@ func (r *loggingResponseWriter) Write(b []byte) (int, error) {
 	size, err := r.ResponseWriter.Write(b)
 	r.responseData.size += size // захватываем размер
 	r.responseData.body = b
+	r.responseData.contentTypeHeader = r.Header().Get("Content-Type")
 	return size, err
 }
 
