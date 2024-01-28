@@ -21,7 +21,7 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		if req.Header.Get("Content-Type") != "application/json; charset=utf-8" {
+		if req.Header.Get("Content-Type") != "application/json" {
 			http.Error(res, "Content type must be application/json", http.StatusBadRequest)
 			return
 		}
