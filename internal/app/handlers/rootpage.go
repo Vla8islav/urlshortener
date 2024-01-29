@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"io"
 	"net/http"
+	"strings"
 )
 
 func RootPageHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
@@ -20,7 +20,8 @@ func RootPageHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		if req.Header.Get("Content-Type") != "text/plain; charset=utf-8" {
+		if !(req.Header.Get("Content-Type") == "text/plain; charset=utf-8" ||
+			strings.Contains(req.Header.Get("Content-Type"), "gzip")) {
 			http.Error(res, "Content type must be text/plain", http.StatusBadRequest)
 			return
 		}
@@ -42,7 +43,7 @@ func RootPageHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 
 		res.WriteHeader(http.StatusCreated)
 		res.Header().Add("Content-Type", "text/plain")
-		res.Header().Add("Content-Length", fmt.Sprintf("%d", len(shortenedURL)))
+		//res.Header().Add("Content-Length", fmt.Sprintf("%d", len(shortenedURL)))
 		res.Write([]byte(shortenedURL))
 	}
 

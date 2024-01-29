@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"io"
@@ -68,7 +67,7 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 		}
 
 		res.Header().Add("Content-Type", "application/json")
-		res.Header().Add("Content-Length", fmt.Sprintf("%d", len(responseBuffer)))
+		//res.Header().Add("Content-Length", fmt.Sprintf("%d", len(responseBuffer)))
 		res.WriteHeader(http.StatusCreated)
 		res.Write([]byte(responseBufferStr))
 	}
