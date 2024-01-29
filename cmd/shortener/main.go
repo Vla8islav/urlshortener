@@ -29,9 +29,9 @@ func (c *gzipWriter) Header() http.Header {
 	return c.w.Header()
 }
 
-func (w gzipWriter) Write(b []byte) (int, error) {
+func (c *gzipWriter) Write(b []byte) (int, error) {
 	// w.Writer будет отвечать за gzip-сжатие, поэтому пишем в него
-	return w.zw.Write(b)
+	return c.zw.Write(b)
 }
 
 func (c *gzipWriter) WriteHeader(statusCode int) {
