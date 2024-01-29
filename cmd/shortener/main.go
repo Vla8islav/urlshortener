@@ -20,6 +20,7 @@ type gzipWriter struct {
 
 func (w gzipWriter) Write(b []byte) (int, error) {
 	// w.Writer будет отвечать за gzip-сжатие, поэтому пишем в него
+	w.Header().Del("Content-Length")
 	return w.Writer.Write(b)
 }
 

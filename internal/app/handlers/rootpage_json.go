@@ -67,9 +67,9 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		res.WriteHeader(http.StatusCreated)
 		res.Header().Add("Content-Type", "application/json")
 		res.Header().Add("Content-Length", fmt.Sprintf("%d", len(responseBuffer)))
+		res.WriteHeader(http.StatusCreated)
 		res.Write([]byte(responseBufferStr))
 	}
 
