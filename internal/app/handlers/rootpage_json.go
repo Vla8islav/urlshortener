@@ -58,6 +58,8 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 
 		responseStruct := URLShortenResponse{Result: shortenedURL}
 		responseBuffer, err := json.Marshal(responseStruct)
+		// TODO: see why this is necessary for compression to function
+		responseBufferStr := string(responseBuffer)
 
 		if err != nil {
 			http.Error(res, "Failed to pack short url '"+shortenedURL+"' into json",
@@ -65,10 +67,10 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
+		res.WriteHeader(http.StatusCreated)
 		res.Header().Add("Content-Type", "application/json")
 		res.Header().Add("Content-Length", fmt.Sprintf("%d", len(responseBuffer)))
-		res.WriteHeader(http.StatusCreated)
-		res.Write(responseBuffer)
+		res.Write([]byte(responseBufferStr))
 	}
 
 }
