@@ -13,7 +13,7 @@ import (
 )
 
 func TestRootPageHandler(t *testing.T) {
-	short := app.NewURLShortenService()
+	short, _ := app.NewURLShortenService()
 
 	type expectedResult struct {
 		code        int

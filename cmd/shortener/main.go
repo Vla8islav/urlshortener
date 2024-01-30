@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+	short, _ := app.NewURLShortenService()
 
 	// создаём предустановленный регистратор zap
 	logger, errLog := zap.NewDevelopment()
@@ -23,8 +24,6 @@ func main() {
 
 	// делаем регистратор SugaredLogger
 	sugaredLogger := *logger.Sugar()
-
-	short := app.NewURLShortenService()
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.RootPageHandler(short))))
