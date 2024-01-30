@@ -14,16 +14,16 @@ var mu sync.Mutex
 
 type DataStorageRecord struct {
 	UUID        string `json:"uuid"`
-	ShortUrl    string `json:"short_url"`
-	OriginalUrl string `json:"original_url"`
+	ShortURL    string `json:"short_url"`
+	OriginalURL string `json:"original_url"`
 }
 
 func loadDataFromFile(filename string, s Storage) error {
-	f, err := os.Open(filename)
-	defer f.Close()
+	f, err := os.OpenFile(filename, os.O_RDONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 	fileScanner := bufio.NewScanner(f)
 
 	fileScanner.Split(bufio.ScanLines)
@@ -37,7 +37,7 @@ func loadDataFromFile(filename string, s Storage) error {
 			return err
 		}
 		fmt.Println(data)
-		s.AddUrlPairInMemory(configuration.ReadFlags().ShortenerBaseURL+"/"+data.ShortUrl, data.OriginalUrl, data.UUID)
+		s.AddURLPairInMemory(configuration.ReadFlags().ShortenerBaseURL+"/"+data.ShortURL, data.OriginalURL, data.UUID)
 
 	}
 	return nil
@@ -57,7 +57,7 @@ func NewMakeshiftStorage() (Storage, error) {
 
 type Storage interface {
 	AddURLPair(shortenedURL string, fullURL string, uuidStr string)
-	AddUrlPairInMemory(shortenedURL string, fullURL string, uuidStr string)
+	AddURLPairInMemory(shortenedURL string, fullURL string, uuidStr string)
 	GetFullURL(shortenedURL string) (string, bool)
 	GetShortenedURL(fullURL string) (string, bool)
 }
@@ -70,10 +70,10 @@ type MakeshiftStorage struct {
 
 func writeIntoFile(filename string, data DataStorageRecord) error {
 	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
-	defer f.Close()
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 	dataString, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -88,13 +88,13 @@ func (s MakeshiftStorage) AddURLPair(shortenedURL string, fullURL string, uuidSt
 	if _, found := s.uuidList[uuidStr]; found {
 		return
 	}
-	s.AddUrlPairInMemory(shortenedURL, fullURL, uuidStr)
+	s.AddURLPairInMemory(shortenedURL, fullURL, uuidStr)
 	writeIntoFile(configuration.ReadFlags().FileStoragePath, DataStorageRecord{UUID: uuidStr,
-		ShortUrl: strings.TrimPrefix(
-			strings.TrimPrefix(shortenedURL, configuration.ReadFlags().ShortenerBaseURL), "/"), OriginalUrl: fullURL})
+		ShortURL: strings.TrimPrefix(
+			strings.TrimPrefix(shortenedURL, configuration.ReadFlags().ShortenerBaseURL), "/"), OriginalURL: fullURL})
 }
 
-func (s MakeshiftStorage) AddUrlPairInMemory(shortenedURL string, fullURL string, uuidStr string) {
+func (s MakeshiftStorage) AddURLPairInMemory(shortenedURL string, fullURL string, uuidStr string) {
 	mu.Lock()
 	defer mu.Unlock()
 	s.urlToShort[fullURL] = shortenedURL
