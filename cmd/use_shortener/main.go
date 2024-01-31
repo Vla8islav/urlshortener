@@ -44,22 +44,7 @@ func main() {
 	if err != nil {
 		println(err)
 	}
-	//noRespErr := assert.NoError(err, "Ошибка при попытке сделать запрос для сокращения URL")
 
 	shortenURL := string(resp.Body())
-
-	//validStatus := suite.Assert().Equalf(http.StatusCreated, resp.StatusCode(),
-	//	"Несоответствие статус кода ответа ожидаемому в хендлере '%s %s'", req.Method, req.URL)
-
-	//_, urlParseErr := url.Parse(shortenURL)
-	//validURL := suite.Assert().NoErrorf(urlParseErr,
-	//	"Невозможно распарсить полученный сокращенный URL - %s : %s", shortenURL, err,
-	//)
-
-	//if !noRespErr || !validStatus || !validURL {
-	//	dump := dumpRequest(req.RawRequest, true)
-	//	suite.T().Logf("Оригинальный запрос:\n\n%s", dump)
-	//}
-
 	shortenURLs[originalURL] = shortenURL
 }

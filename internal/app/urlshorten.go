@@ -37,7 +37,6 @@ func (u URLShortenService) GetShortenedURL(urlToShorten string) string {
 	if u.Storage == nil {
 		panic("Database not initialised")
 	}
-	//Storage := storage.NewMakeshiftStorage()
 	shortenedURL := ""
 	if existingShortenedURL, alreadyExist := u.Storage.GetShortenedURL(urlToShorten); alreadyExist {
 		shortenedURL = existingShortenedURL
@@ -55,7 +54,6 @@ func (u URLShortenService) GetShortenedURL(urlToShorten string) string {
 var ErrURLNotFound = errors.New("couldn't find a requested URL")
 
 func (u URLShortenService) GetFullURL(shortenedPostfix string) (string, error) {
-	//Storage := storage.NewMakeshiftStorage()
 	fullSortURL, err := url.JoinPath(configuration.ReadFlags().ShortenerBaseURL, shortenedPostfix)
 	if err != nil {
 		return "", err
