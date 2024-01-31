@@ -19,6 +19,9 @@ type DataStorageRecord struct {
 }
 
 func loadDataFromFile(filename string, s Storage) error {
+	mu.Lock()
+	defer mu.Unlock()
+
 	f, err := os.OpenFile(filename, os.O_RDONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err
@@ -69,6 +72,9 @@ type MakeshiftStorage struct {
 }
 
 func writeIntoFile(filename string, data DataStorageRecord) error {
+	mu.Lock()
+	defer mu.Unlock()
+
 	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		return err
