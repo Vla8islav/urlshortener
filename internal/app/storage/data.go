@@ -19,9 +19,6 @@ type DataStorageRecord struct {
 }
 
 func loadDataFromFile(filename string, s Storage) error {
-	mu.Lock()
-	defer mu.Unlock()
-
 	f, err := os.OpenFile(filename, os.O_RDONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err
@@ -44,6 +41,25 @@ func loadDataFromFile(filename string, s Storage) error {
 
 	}
 	return nil
+}
+
+func writeIntoFile(filename string, data DataStorageRecord) error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	dataString, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	dataString = append(dataString, '\n')
+	_, err = f.Write(dataString)
+	return err
+
 }
 
 func NewMakeshiftStorage() (Storage, error) {
@@ -69,25 +85,6 @@ type MakeshiftStorage struct {
 	urlToShort map[string]string
 	shortToURL map[string]string
 	uuidList   map[string]struct{}
-}
-
-func writeIntoFile(filename string, data DataStorageRecord) error {
-	mu.Lock()
-	defer mu.Unlock()
-
-	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	dataString, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-	dataString = append(dataString, '\n')
-	_, err = f.Write(dataString)
-	return err
-
 }
 
 func (s MakeshiftStorage) AddURLPair(shortenedURL string, fullURL string, uuidStr string) {
