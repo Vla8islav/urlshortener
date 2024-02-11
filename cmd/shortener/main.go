@@ -6,13 +6,18 @@ import (
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
 	"github.com/Vla8islav/urlshortener/internal/app/handlers"
 	"github.com/Vla8islav/urlshortener/internal/app/logging"
+	"github.com/Vla8islav/urlshortener/internal/app/storage"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"net/http"
 )
 
 func main() {
-	short, _ := app.NewURLShortenService()
+	s, err := getStorage()
+	if err != nil {
+		panic(err)
+	}
+	short, _ := app.NewURLShortenService(s)
 
 	// создаём предустановленный регистратор zap
 	logger, errLog := zap.NewDevelopment()
@@ -31,9 +36,15 @@ func main() {
 	r.HandleFunc("/{slug:[A-Za-z]+}", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.ExpandHandler(short))))
 	r.HandleFunc("/api/shorten", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.RootPageJSONHandler(short))))
 
-	err := http.ListenAndServe(configuration.ReadFlags().ServerAddress, r)
+	err = http.ListenAndServe(configuration.ReadFlags().ServerAddress, r)
 	if err != nil {
 
 		panic(err)
 	}
+}
+
+func getStorage() (storage.Storage, error) {
+	//s, err := storage.NewMakeshiftStorage()
+	s, err := storage.NewPostgresStorage()
+	return s, err
 }

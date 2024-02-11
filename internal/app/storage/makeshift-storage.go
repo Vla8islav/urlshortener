@@ -12,7 +12,7 @@ import (
 
 var mu sync.Mutex
 
-type DataStorageRecord struct {
+type dataStorageRecord struct {
 	UUID        string `json:"uuid"`
 	ShortURL    string `json:"short_url"`
 	OriginalURL string `json:"original_url"`
@@ -31,7 +31,7 @@ func loadDataFromFile(filename string, s Storage) error {
 	for fileScanner.Scan() {
 		t := fileScanner.Text()
 		fmt.Println(t)
-		var data DataStorageRecord
+		var data dataStorageRecord
 		err = json.Unmarshal([]byte(t), &data)
 		if err != nil {
 			return err
@@ -43,7 +43,7 @@ func loadDataFromFile(filename string, s Storage) error {
 	return nil
 }
 
-func writeIntoFile(filename string, data DataStorageRecord) error {
+func writeIntoFile(filename string, data dataStorageRecord) error {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -74,13 +74,6 @@ func NewMakeshiftStorage() (Storage, error) {
 	return instance, nil
 }
 
-type Storage interface {
-	AddURLPair(shortenedURL string, fullURL string, uuidStr string)
-	AddURLPairInMemory(shortenedURL string, fullURL string, uuidStr string)
-	GetFullURL(shortenedURL string) (string, bool)
-	GetShortenedURL(fullURL string) (string, bool)
-}
-
 type MakeshiftStorage struct {
 	urlToShort map[string]string
 	shortToURL map[string]string
@@ -92,7 +85,7 @@ func (s MakeshiftStorage) AddURLPair(shortenedURL string, fullURL string, uuidSt
 		return
 	}
 	s.AddURLPairInMemory(shortenedURL, fullURL, uuidStr)
-	writeIntoFile(configuration.ReadFlags().FileStoragePath, DataStorageRecord{UUID: uuidStr,
+	writeIntoFile(configuration.ReadFlags().FileStoragePath, dataStorageRecord{UUID: uuidStr,
 		ShortURL: strings.TrimPrefix(
 			strings.TrimPrefix(shortenedURL, configuration.ReadFlags().ShortenerBaseURL), "/"), OriginalURL: fullURL})
 }

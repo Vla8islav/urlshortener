@@ -25,11 +25,8 @@ type URLShortenServiceMethods interface {
 	MatchesGeneratedURLFormat(s string) bool
 }
 
-func NewURLShortenService() (URLShortenServiceMethods, error) {
-	s, err := storage.NewMakeshiftStorage()
-	if err != nil {
-		return nil, err
-	}
+func NewURLShortenService(s storage.Storage) (URLShortenServiceMethods, error) {
+
 	return URLShortenService{Storage: s}, nil
 }
 
