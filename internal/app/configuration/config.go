@@ -7,9 +7,10 @@ import (
 )
 
 type Options struct {
-	ServerAddress    string `env:"SERVER_ADDRESS"`
-	ShortenerBaseURL string `env:"BASE_URL"`
-	FileStoragePath  string `env:"FILE_STORAGE_PATH"`
+	ServerAddress      string `env:"SERVER_ADDRESS"`
+	ShortenerBaseURL   string `env:"BASE_URL"`
+	FileStoragePath    string `env:"FILE_STORAGE_PATH"`
+	DBConnectionString string `env:"DATABASE_DSN"`
 }
 
 var instance *Options
@@ -40,6 +41,10 @@ func mergeOptions(mergeInto *Options, newValues Options) {
 	if mergeInto.FileStoragePath == "" && newValues.FileStoragePath != "" {
 		mergeInto.FileStoragePath = newValues.FileStoragePath
 	}
+
+	if mergeInto.DBConnectionString == "" && newValues.DBConnectionString != "" {
+		mergeInto.DBConnectionString = newValues.DBConnectionString
+	}
 }
 
 func getEnvOptions() Options {
@@ -56,6 +61,9 @@ func getCmdOptions() Options {
 	flag.StringVar(&opt.ServerAddress, "a", "localhost:8080", "port on which the server should run")
 	flag.StringVar(&opt.ShortenerBaseURL, "b", "http://localhost:8080", "base url for shortened links")
 	flag.StringVar(&opt.FileStoragePath, "f", "/tmp/short-url-db.json", "local file storage path")
+	flag.StringVar(&opt.DBConnectionString, "d",
+		"postgresql://postgres:pass123@localhost:5432/urlshortener",
+		"Postgres database connection string")
 	flag.Parse()
 	return opt
 }
