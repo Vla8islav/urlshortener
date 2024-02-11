@@ -9,6 +9,7 @@ import (
 type Options struct {
 	ServerAddress    string `env:"SERVER_ADDRESS"`
 	ShortenerBaseURL string `env:"BASE_URL"`
+	FileStoragePath  string `env:"FILE_STORAGE_PATH"`
 }
 
 var instance *Options
@@ -35,6 +36,10 @@ func mergeOptions(mergeInto *Options, newValues Options) {
 	if mergeInto.ShortenerBaseURL == "" && newValues.ShortenerBaseURL != "" {
 		mergeInto.ShortenerBaseURL = newValues.ShortenerBaseURL
 	}
+
+	if mergeInto.FileStoragePath == "" && newValues.FileStoragePath != "" {
+		mergeInto.FileStoragePath = newValues.FileStoragePath
+	}
 }
 
 func getEnvOptions() Options {
@@ -50,6 +55,7 @@ func getCmdOptions() Options {
 	opt := Options{}
 	flag.StringVar(&opt.ServerAddress, "a", "localhost:8080", "port on which the server should run")
 	flag.StringVar(&opt.ShortenerBaseURL, "b", "http://localhost:8080", "base url for shortened links")
+	flag.StringVar(&opt.FileStoragePath, "f", "/tmp/short-url-db.json", "local file storage path")
 	flag.Parse()
 	return opt
 }
