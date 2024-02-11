@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/Vla8islav/urlshortener/internal/app"
+	"github.com/Vla8islav/urlshortener/internal/app/storage"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -10,8 +11,8 @@ import (
 )
 
 func TestExpandHandler(t *testing.T) {
-
-	short, _ := app.NewURLShortenService()
+	s, _ := storage.NewPostgresStorage()
+	short, _ := app.NewURLShortenService(s)
 	shortenedURL := short.GetShortenedURL("http://ya.ru")
 
 	type expectedResult struct {

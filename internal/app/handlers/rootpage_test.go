@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
+	"github.com/Vla8islav/urlshortener/internal/app/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io"
@@ -13,7 +14,8 @@ import (
 )
 
 func TestRootPageHandler(t *testing.T) {
-	short, _ := app.NewURLShortenService()
+	s, _ := storage.NewPostgresStorage()
+	short, _ := app.NewURLShortenService(s)
 
 	type expectedResult struct {
 		code        int
