@@ -14,6 +14,15 @@ type PostgresStorage struct {
 
 func NewPostgresStorage() (Storage, error) {
 	instance := new(PostgresStorage)
+
+	ctx, conn := getPostgresConnection()
+	defer conn.Close(ctx)
+
+	_, err := conn.Exec(ctx, "CREATE TABLE IF NOT EXISTS url_mapping (UUID char(36) PRIMARY KEY, ShortURL varchar(2000), OriginalURL varchar(2000))")
+	if err != nil {
+		panic("Couldn't create postgres table")
+	}
+
 	return instance, nil
 }
 
