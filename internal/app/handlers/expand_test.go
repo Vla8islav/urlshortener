@@ -11,7 +11,10 @@ import (
 )
 
 func TestExpandHandler(t *testing.T) {
-	s, _ := storage.NewPostgresStorage()
+	s, err := storage.GetStorage()
+	if err != nil {
+		panic(err)
+	}
 	short, _ := app.NewURLShortenService(s)
 	shortenedURL := short.GetShortenedURL("http://ya.ru")
 

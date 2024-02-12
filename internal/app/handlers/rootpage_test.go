@@ -14,7 +14,11 @@ import (
 )
 
 func TestRootPageHandler(t *testing.T) {
-	s, _ := storage.NewPostgresStorage()
+	s, err := storage.GetStorage()
+	if err != nil {
+		panic(err)
+	}
+
 	short, _ := app.NewURLShortenService(s)
 
 	type expectedResult struct {

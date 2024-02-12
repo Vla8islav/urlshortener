@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	s, err := getStorage()
+	s, err := storage.GetStorage()
 	if err != nil {
 		panic(err)
 	}
@@ -41,12 +41,4 @@ func main() {
 
 		panic(err)
 	}
-}
-
-func getStorage() (storage.Storage, error) {
-	//s, err := storage.NewMakeshiftStorage()
-	if configuration.ReadFlags().DBConnectionString != "" {
-		return storage.NewPostgresStorage()
-	}
-	return storage.NewMakeshiftStorage()
 }
