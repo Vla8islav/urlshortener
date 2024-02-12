@@ -45,6 +45,8 @@ func main() {
 
 func getStorage() (storage.Storage, error) {
 	//s, err := storage.NewMakeshiftStorage()
-	s, err := storage.NewPostgresStorage()
-	return s, err
+	if configuration.ReadFlags().DBConnectionString != "" {
+		return storage.NewPostgresStorage()
+	}
+	return storage.NewMakeshiftStorage()
 }

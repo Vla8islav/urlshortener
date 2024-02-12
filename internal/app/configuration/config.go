@@ -62,7 +62,7 @@ func getCmdOptions() Options {
 	flag.StringVar(&opt.ShortenerBaseURL, "b", "http://localhost:8080", "base url for shortened links")
 	flag.StringVar(&opt.FileStoragePath, "f", "/tmp/short-url-db.json", "local file storage path")
 	flag.StringVar(&opt.DBConnectionString, "d",
-		"postgresql://postgres:pass123@localhost:5432/urlshortener",
+		"",
 		"Postgres database connection string")
 	flag.Parse()
 	return opt
