@@ -39,7 +39,7 @@ func RootPageHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		shortenedURL := short.GetShortenedURL(bodyString)
+		shortenedURL, _ := short.GetShortenedURL(bodyString)
 
 		res.WriteHeader(http.StatusCreated)
 		res.Header().Add("Content-Type", "text/plain")

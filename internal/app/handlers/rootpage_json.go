@@ -49,7 +49,7 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		shortenedURL := short.GetShortenedURL(requestStruct.URL)
+		shortenedURL, _ := short.GetShortenedURL(requestStruct.URL)
 
 		type URLShortenResponse struct {
 			Result string `json:"result"`
