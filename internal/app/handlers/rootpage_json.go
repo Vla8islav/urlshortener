@@ -53,7 +53,7 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 		shortenedURL, shortURLError := short.GetShortenedURL(requestStruct.URL)
 
 		returnStatus := http.StatusCreated
-		var urlAlreadyExist *app.UrlExistError
+		var urlAlreadyExist *app.URLExistError
 		if errors.As(shortURLError, &urlAlreadyExist) {
 			returnStatus = http.StatusConflict
 		}

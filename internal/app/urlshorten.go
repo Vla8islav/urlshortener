@@ -31,12 +31,12 @@ func NewURLShortenService(s storage.Storage) (URLShortenServiceMethods, error) {
 	return URLShortenService{Storage: s}, nil
 }
 
-type UrlExistError struct {
+type URLExistError struct {
 	URL string
 	Err error
 }
 
-func (ue *UrlExistError) Error() string {
+func (ue *URLExistError) Error() string {
 	return fmt.Sprintf("URL: %s Error: %v", ue.URL, ue.Err)
 }
 
@@ -48,7 +48,7 @@ func (u URLShortenService) GetShortenedURL(urlToShorten string) (string, error) 
 	var err error
 	if existingShortenedURL, alreadyExist := u.Storage.GetShortenedURL(urlToShorten); alreadyExist {
 		shortenedURL = existingShortenedURL
-		err = &UrlExistError{Err: err, URL: existingShortenedURL}
+		err = &URLExistError{Err: err, URL: existingShortenedURL}
 	} else {
 		newShortenedURL, err := u.GenerateShortenedURL()
 		if err != nil {
