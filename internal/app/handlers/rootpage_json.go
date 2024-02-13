@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"io"
@@ -49,7 +50,13 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		shortenedURL, _ := short.GetShortenedURL(requestStruct.URL)
+		shortenedURL, shortURLError := short.GetShortenedURL(requestStruct.URL)
+
+		returnStatus := http.StatusCreated
+		var urlAlreadyExist *app.UrlExistError
+		if errors.As(shortURLError, &urlAlreadyExist) {
+			returnStatus = http.StatusConflict
+		}
 
 		type URLShortenResponse struct {
 			Result string `json:"result"`
@@ -65,7 +72,7 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 		}
 
 		res.Header().Add("Content-Type", "application/json")
-		res.WriteHeader(http.StatusCreated)
+		res.WriteHeader(returnStatus)
 		res.Write(responseBuffer)
 	}
 
