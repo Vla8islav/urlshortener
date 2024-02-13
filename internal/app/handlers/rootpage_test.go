@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
+	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"github.com/Vla8islav/urlshortener/internal/app/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -30,7 +31,7 @@ func TestRootPageHandler(t *testing.T) {
 	validRequest.Header = http.Header{
 		"Content-Type": []string{"text/plain; charset=utf-8"},
 	}
-	validRequest.Body = io.NopCloser(strings.NewReader("http://ya.ru"))
+	validRequest.Body = io.NopCloser(strings.NewReader("http://ya.ru/" + helpers.GenerateString(10, "afdghjklpoiu")))
 
 	getRequest := httptest.NewRequest(http.MethodGet, "/", nil)
 
