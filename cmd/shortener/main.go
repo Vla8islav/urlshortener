@@ -14,10 +14,11 @@ import (
 
 func main() {
 	s, err := storage.GetStorage()
-	defer s.Close()
 	if err != nil {
 		panic(err)
 	}
+	defer s.Close()
+
 	short, _ := app.NewURLShortenService(s)
 
 	// создаём предустановленный регистратор zap
