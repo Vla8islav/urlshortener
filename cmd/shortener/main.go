@@ -14,6 +14,7 @@ import (
 
 func main() {
 	s, err := storage.GetStorage()
+	defer s.Close()
 	if err != nil {
 		panic(err)
 	}

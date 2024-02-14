@@ -80,6 +80,8 @@ type MakeshiftStorage struct {
 	uuidList   map[string]struct{}
 }
 
+func (s MakeshiftStorage) Close() {}
+
 func (s MakeshiftStorage) AddURLPair(shortenedURL string, fullURL string, uuidStr string) {
 	if _, found := s.uuidList[uuidStr]; found {
 		return
