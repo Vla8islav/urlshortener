@@ -1,21 +1,20 @@
 package main
 
 import (
-	"context"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/compression"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
 	"github.com/Vla8islav/urlshortener/internal/app/handlers"
+	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"github.com/Vla8islav/urlshortener/internal/app/logging"
 	"github.com/Vla8islav/urlshortener/internal/app/storage"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"net/http"
-	"time"
 )
 
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	ctx, cancel := helpers.GetDefaultContext()
 	defer cancel()
 
 	s, err := storage.GetStorage(ctx)

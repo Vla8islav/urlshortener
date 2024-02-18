@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/Vla8islav/urlshortener/internal/app"
+	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"github.com/Vla8islav/urlshortener/internal/app/storage"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -11,7 +12,11 @@ import (
 )
 
 func TestExpandHandler(t *testing.T) {
-	s, err := storage.GetStorage()
+	ctx, cancel := helpers.GetDefaultContext()
+	defer cancel()
+
+	s, err := storage.GetStorage(ctx)
+
 	if err != nil {
 		panic(err)
 	}

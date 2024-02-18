@@ -15,7 +15,11 @@ import (
 )
 
 func TestRootPageHandler(t *testing.T) {
-	s, err := storage.GetStorage()
+	ctx, cancel := helpers.GetDefaultContext()
+	defer cancel()
+
+	s, err := storage.GetStorage(ctx)
+
 	if err != nil {
 		panic(err)
 	}
