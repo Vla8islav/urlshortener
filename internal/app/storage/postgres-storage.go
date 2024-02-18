@@ -45,8 +45,7 @@ func (s PostgresStorage) AddURLPair(shortenedURL string, fullURL string, uuidStr
 
 }
 
-func getPostgresConnection() (context.Context, *pgx.Conn) {
-	ctx := context.Background()
+func getPostgresConnection(ctx context.Context) (context.Context, *pgx.Conn) {
 	conn, err := pgx.Connect(ctx, configuration.ReadFlags().DBConnectionString)
 	if err != nil {
 		panic("Couldn't create connection to the postgres DB")
@@ -80,7 +79,7 @@ func (s PostgresStorage) GetFullURL(shortenedURL string) (string, bool) {
 }
 
 func (s PostgresStorage) GetShortenedURL(fullURL string) (string, bool) {
-	ctx, conn := getPostgresConnection()
+	ctx, conn := getPostgresConnection(s.ctx)
 	defer conn.Close(ctx)
 
 	row := conn.QueryRow(ctx, "SELECT uuid, shorturl, originalurl FROM "+urlMappingTableName+" WHERE originalurl = $1  LIMIT 1", fullURL)

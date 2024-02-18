@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/compression"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
@@ -10,10 +11,14 @@ import (
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"net/http"
+	"time"
 )
 
 func main() {
-	s, err := storage.GetStorage()
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	s, err := storage.GetStorage(ctx)
 	if err != nil {
 		panic(err)
 	}

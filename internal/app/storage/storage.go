@@ -13,9 +13,9 @@ type Storage interface {
 	Close()
 }
 
-func GetStorage() (Storage, error) {
+func GetStorage(ctx context.Context) (Storage, error) {
 	if configuration.ReadFlags().DBConnectionString != "" {
-		return NewPostgresStorage(context.Background())
+		return NewPostgresStorage(ctx)
 	}
 	return NewMakeshiftStorage()
 }
