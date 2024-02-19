@@ -40,7 +40,7 @@ func RootPageHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		shortenedURL, shortURLError := short.GetShortenedURL(bodyString)
+		shortenedURL, shortURLError := short.GetShortenedURL(req.Context(), bodyString)
 
 		returnStatus := http.StatusCreated
 		var urlAlreadyExist *app.URLExistError

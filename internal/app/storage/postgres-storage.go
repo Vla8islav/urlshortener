@@ -12,22 +12,19 @@ const urlMappingTableName = "url_mapping"
 
 type PostgresStorage struct {
 	connPool *pgxpool.Pool
-	ctx      context.Context
 }
 
 func NewPostgresStorage(ctx context.Context) (Storage, error) {
 	instance := new(PostgresStorage)
-	instance.ctx = ctx
 	var err error
-	instance.connPool, err = pgxpool.New(instance.ctx,
-		configuration.ReadFlags().DBConnectionString)
+	instance.connPool, err = pgxpool.New(ctx, configuration.ReadFlags().DBConnectionString)
 	if err != nil {
-		panic("Couldn't connect to the postgres server")
+		panic("Couldn't connect to the postgres server" + err.Error())
 	}
 
-	_, err = instance.connPool.Exec(instance.ctx, "CREATE TABLE IF NOT EXISTS url_mapping (UUID char(36) PRIMARY KEY, ShortURL varchar(2000), OriginalURL varchar(2000))")
+	_, err = instance.connPool.Exec(ctx, "CREATE TABLE IF NOT EXISTS url_mapping (UUID char(36) PRIMARY KEY, ShortURL varchar(2000), OriginalURL varchar(2000))")
 	if err != nil {
-		panic("Couldn't create postgres table")
+		panic("Couldn't create postgres table" + err.Error())
 	}
 
 	return instance, nil
@@ -37,8 +34,8 @@ func (s PostgresStorage) Close() {
 	s.connPool.Close()
 }
 
-func (s PostgresStorage) AddURLPair(shortenedURL string, fullURL string, uuidStr string) {
-	_, err := s.connPool.Exec(s.ctx, "INSERT INTO "+urlMappingTableName+"(UUID, ShortURL, OriginalURL) values ($1, $2, $3)", uuidStr, shortenedURL, fullURL)
+func (s PostgresStorage) AddURLPair(ctx context.Context, shortenedURL string, fullURL string, uuidStr string) {
+	_, err := s.connPool.Exec(ctx, "INSERT INTO "+urlMappingTableName+"(UUID, ShortURL, OriginalURL) values ($1, $2, $3)", uuidStr, shortenedURL, fullURL)
 	if err != nil {
 		panic("Couldn't insert data into" + urlMappingTableName + " postgres table")
 	}
@@ -53,8 +50,8 @@ func getPostgresConnection(ctx context.Context) (context.Context, *pgx.Conn) {
 	return ctx, conn
 }
 
-func (s PostgresStorage) AddURLPairInMemory(shortenedURL string, fullURL string, uuidStr string) {
-	s.AddURLPair(shortenedURL, fullURL, uuidStr)
+func (s PostgresStorage) AddURLPairInMemory(ctx context.Context, shortenedURL string, fullURL string, uuidStr string) {
+	s.AddURLPair(ctx, shortenedURL, fullURL, uuidStr)
 }
 
 type urlMappingTableRecord struct {
@@ -63,9 +60,9 @@ type urlMappingTableRecord struct {
 	OriginalURL string `json:"original_url"`
 }
 
-func (s PostgresStorage) GetFullURL(shortenedURL string) (string, bool) {
+func (s PostgresStorage) GetFullURL(ctx context.Context, shortenedURL string) (string, bool) {
 
-	row := s.connPool.QueryRow(s.ctx, "SELECT uuid, shorturl, originalurl FROM "+urlMappingTableName+" WHERE shorturl = $1  LIMIT 1", shortenedURL)
+	row := s.connPool.QueryRow(ctx, "SELECT uuid, shorturl, originalurl FROM "+urlMappingTableName+" WHERE shorturl = $1  LIMIT 1", shortenedURL)
 	var u urlMappingTableRecord
 	err := row.Scan(&u.UUID, &u.ShortURL, &u.OriginalURL)
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -78,8 +75,8 @@ func (s PostgresStorage) GetFullURL(shortenedURL string) (string, bool) {
 
 }
 
-func (s PostgresStorage) GetShortenedURL(fullURL string) (string, bool) {
-	ctx, conn := getPostgresConnection(s.ctx)
+func (s PostgresStorage) GetShortenedURL(ctx context.Context, fullURL string) (string, bool) {
+	ctx, conn := getPostgresConnection(ctx)
 	defer conn.Close(ctx)
 
 	row := conn.QueryRow(ctx, "SELECT uuid, shorturl, originalurl FROM "+urlMappingTableName+" WHERE originalurl = $1  LIMIT 1", fullURL)
@@ -94,7 +91,7 @@ func (s PostgresStorage) GetShortenedURL(fullURL string) (string, bool) {
 	}
 }
 
-func (s PostgresStorage) Ping() error {
-	_, err := s.connPool.Exec(s.ctx, "select * from urlshortener.public.url_mapping limit 1")
+func (s PostgresStorage) Ping(ctx context.Context) error {
+	_, err := s.connPool.Exec(ctx, "select * from urlshortener.public.url_mapping limit 1")
 	return err
 }

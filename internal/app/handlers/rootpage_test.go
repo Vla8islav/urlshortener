@@ -24,7 +24,7 @@ func TestRootPageHandler(t *testing.T) {
 		panic(err)
 	}
 
-	short, _ := app.NewURLShortenService(s)
+	short, _ := app.NewURLShortenService(ctx, s)
 
 	type expectedResult struct {
 		code        int

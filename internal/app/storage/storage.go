@@ -6,11 +6,11 @@ import (
 )
 
 type Storage interface {
-	AddURLPair(shortenedURL string, fullURL string, uuidStr string)
-	AddURLPairInMemory(shortenedURL string, fullURL string, uuidStr string)
-	GetFullURL(shortenedURL string) (string, bool)
-	GetShortenedURL(fullURL string) (string, bool)
-	Ping() error
+	AddURLPair(ctx context.Context, shortenedURL string, fullURL string, uuidStr string)
+	AddURLPairInMemory(ctx context.Context, shortenedURL string, fullURL string, uuidStr string)
+	GetFullURL(ctx context.Context, shortenedURL string) (string, bool)
+	GetShortenedURL(ctx context.Context, fullURL string) (string, bool)
+	Ping(ctx context.Context) error
 	Close()
 }
 
@@ -18,5 +18,5 @@ func GetStorage(ctx context.Context) (Storage, error) {
 	if configuration.ReadFlags().DBConnectionString != "" {
 		return NewPostgresStorage(ctx)
 	}
-	return NewMakeshiftStorage()
+	return NewMakeshiftStorage(ctx)
 }

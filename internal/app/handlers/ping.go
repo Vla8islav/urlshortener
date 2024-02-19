@@ -11,7 +11,7 @@ func PingHandler(s *storage.Storage) http.HandlerFunc {
 	}
 
 	return func(res http.ResponseWriter, req *http.Request) {
-		err := (*s).Ping()
+		err := (*s).Ping(req.Context())
 		if err == nil {
 			res.WriteHeader(http.StatusOK)
 		} else {

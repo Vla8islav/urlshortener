@@ -23,7 +23,7 @@ func main() {
 	}
 	defer s.Close()
 
-	short, _ := app.NewURLShortenService(s)
+	short, _ := app.NewURLShortenService(ctx, s)
 
 	// создаём предустановленный регистратор zap
 	logger, errLog := zap.NewDevelopment()

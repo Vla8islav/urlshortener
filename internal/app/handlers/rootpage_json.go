@@ -50,7 +50,7 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		shortenedURL, shortURLError := short.GetShortenedURL(requestStruct.URL)
+		shortenedURL, shortURLError := short.GetShortenedURL(req.Context(), requestStruct.URL)
 
 		returnStatus := http.StatusCreated
 		var urlAlreadyExist *app.URLExistError
