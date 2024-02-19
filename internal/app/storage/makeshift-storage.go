@@ -18,8 +18,12 @@ type dataStorageRecord struct {
 	OriginalURL string `json:"original_url"`
 }
 
+func openFileForReading(filename string) (*os.File, error) {
+	return os.OpenFile(filename, os.O_RDONLY|os.O_CREATE, 0644)
+}
+
 func loadDataFromFile(filename string, s Storage) error {
-	f, err := os.OpenFile(filename, os.O_RDONLY|os.O_CREATE, 0644)
+	f, err := openFileForReading(filename)
 	if err != nil {
 		return err
 	}
@@ -67,7 +71,9 @@ func NewMakeshiftStorage() (Storage, error) {
 	instance.urlToShort = make(map[string]string)
 	instance.shortToURL = make(map[string]string)
 	instance.uuidList = make(map[string]struct{})
-	err := loadDataFromFile(configuration.ReadFlags().FileStoragePath, instance)
+	instance.filePath = configuration.ReadFlags().FileStoragePath
+
+	err := loadDataFromFile(instance.filePath, instance)
 	if err != nil {
 		return instance, err
 	}
@@ -78,6 +84,7 @@ type MakeshiftStorage struct {
 	urlToShort map[string]string
 	shortToURL map[string]string
 	uuidList   map[string]struct{}
+	filePath   string
 }
 
 func (s MakeshiftStorage) Close() {}
@@ -87,7 +94,7 @@ func (s MakeshiftStorage) AddURLPair(shortenedURL string, fullURL string, uuidSt
 		return
 	}
 	s.AddURLPairInMemory(shortenedURL, fullURL, uuidStr)
-	writeIntoFile(configuration.ReadFlags().FileStoragePath, dataStorageRecord{UUID: uuidStr,
+	writeIntoFile(s.filePath, dataStorageRecord{UUID: uuidStr,
 		ShortURL: strings.TrimPrefix(
 			strings.TrimPrefix(shortenedURL, configuration.ReadFlags().ShortenerBaseURL), "/"), OriginalURL: fullURL})
 }
@@ -112,4 +119,15 @@ func (s MakeshiftStorage) GetShortenedURL(fullURL string) (string, bool) {
 	defer mu.Unlock()
 	value, exists := s.urlToShort[fullURL]
 	return value, exists
+}
+
+func (s MakeshiftStorage) Ping() error {
+	mu.Lock()
+	defer mu.Unlock()
+	f, err := openFileForReading(s.filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	return nil
 }

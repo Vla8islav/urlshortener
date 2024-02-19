@@ -10,6 +10,7 @@ type Storage interface {
 	AddURLPairInMemory(shortenedURL string, fullURL string, uuidStr string)
 	GetFullURL(shortenedURL string) (string, bool)
 	GetShortenedURL(fullURL string) (string, bool)
+	Ping() error
 	Close()
 }
 
