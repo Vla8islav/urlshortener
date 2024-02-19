@@ -12,10 +12,11 @@ func PingHandler(s *storage.Storage) http.HandlerFunc {
 
 	return func(res http.ResponseWriter, req *http.Request) {
 		err := (*s).Ping()
-		if err != nil {
-			res.WriteHeader(http.StatusInternalServerError)
-		} else {
+		if err == nil {
 			res.WriteHeader(http.StatusOK)
+		} else {
+			res.Write([]byte(err.Error()))
+			res.WriteHeader(http.StatusInternalServerError)
 		}
 	}
 
