@@ -95,6 +95,6 @@ func (s PostgresStorage) GetShortenedURL(fullURL string) (string, bool) {
 }
 
 func (s PostgresStorage) Ping() error {
-	_, err := s.connPool.Exec(s.ctx, "select * from urlshortener.public.url_mapping limit 1")
+	_, err := s.connPool.Exec(s.ctx, "select 1=1")
 	return err
 }
