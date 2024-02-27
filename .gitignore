@@ -26,3 +26,6 @@ vendor/
 # statictest and other binaries
 
 .tools
+
+
+.DS_Store

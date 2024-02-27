@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"io"
@@ -39,9 +40,15 @@ func RootPageHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		shortenedURL := short.GetShortenedURL(bodyString)
+		shortenedURL, shortURLError := short.GetShortenedURL(req.Context(), bodyString)
 
-		res.WriteHeader(http.StatusCreated)
+		returnStatus := http.StatusCreated
+		var urlAlreadyExist *app.URLExistError
+		if errors.As(shortURLError, &urlAlreadyExist) {
+			returnStatus = http.StatusConflict
+		}
+
+		res.WriteHeader(returnStatus)
 		res.Header().Add("Content-Type", "text/plain")
 		res.Write([]byte(shortenedURL))
 	}

@@ -1,7 +1,9 @@
 package app
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"github.com/Vla8islav/urlshortener/internal/app/storage"
@@ -19,46 +21,54 @@ type URLShortenService struct {
 }
 
 type URLShortenServiceMethods interface {
-	GetShortenedURL(urlToShorten string) string
-	GetFullURL(shortenedPostfix string) (string, error)
-	GenerateShortenedURL() (string, error)
+	GetShortenedURL(ctx context.Context, urlToShorten string) (string, error)
+	GetFullURL(ctx context.Context, shortenedPostfix string) (string, error)
+	GenerateShortenedURL(ctx context.Context) (string, error)
 	MatchesGeneratedURLFormat(s string) bool
 }
 
-func NewURLShortenService() (URLShortenServiceMethods, error) {
-	s, err := storage.NewMakeshiftStorage()
-	if err != nil {
-		return nil, err
-	}
+func NewURLShortenService(ctx context.Context, s storage.Storage) (URLShortenServiceMethods, error) {
+
 	return URLShortenService{Storage: s}, nil
 }
 
-func (u URLShortenService) GetShortenedURL(urlToShorten string) string {
+type URLExistError struct {
+	URL string
+	Err error
+}
+
+func (ue *URLExistError) Error() string {
+	return fmt.Sprintf("URL: %s Error: %v", ue.URL, ue.Err)
+}
+
+func (u URLShortenService) GetShortenedURL(ctx context.Context, urlToShorten string) (string, error) {
 	if u.Storage == nil {
 		panic("Database not initialised")
 	}
 	shortenedURL := ""
-	if existingShortenedURL, alreadyExist := u.Storage.GetShortenedURL(urlToShorten); alreadyExist {
+	var err error
+	if existingShortenedURL, alreadyExist := u.Storage.GetShortenedURL(ctx, urlToShorten); alreadyExist {
 		shortenedURL = existingShortenedURL
+		err = &URLExistError{Err: err, URL: existingShortenedURL}
 	} else {
-		newShortenedURL, err := u.GenerateShortenedURL()
+		newShortenedURL, err := u.GenerateShortenedURL(ctx)
 		if err != nil {
-			return ""
+			return "", fmt.Errorf("Couldn't generate shortened URL" + err.Error())
 		}
-		u.Storage.AddURLPair(newShortenedURL, urlToShorten, uuid.New().String())
+		u.Storage.AddURLPair(ctx, newShortenedURL, urlToShorten, uuid.New().String())
 		shortenedURL = newShortenedURL
 	}
-	return shortenedURL
+	return shortenedURL, err
 }
 
 var ErrURLNotFound = errors.New("couldn't find a requested URL")
 
-func (u URLShortenService) GetFullURL(shortenedPostfix string) (string, error) {
+func (u URLShortenService) GetFullURL(ctx context.Context, shortenedPostfix string) (string, error) {
 	fullSortURL, err := url.JoinPath(configuration.ReadFlags().ShortenerBaseURL, shortenedPostfix)
 	if err != nil {
 		return "", err
 	}
-	longURL, found := u.Storage.GetFullURL(fullSortURL)
+	longURL, found := u.Storage.GetFullURL(ctx, fullSortURL)
 	if found {
 		return longURL, nil
 	} else {
@@ -66,7 +76,7 @@ func (u URLShortenService) GetFullURL(shortenedPostfix string) (string, error) {
 	}
 }
 
-func (u URLShortenService) GenerateShortenedURL() (string, error) {
+func (u URLShortenService) GenerateShortenedURL(ctx context.Context) (string, error) {
 	fullPath, err := url.JoinPath(configuration.ReadFlags().ShortenerBaseURL,
 		helpers.GenerateString(len(GeneratedShortenedURLSample), AllowedSymbolsInShortnedURL))
 	if err != nil {

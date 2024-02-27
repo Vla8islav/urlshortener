@@ -24,7 +24,7 @@ func ExpandHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 
 		uri := req.RequestURI
 		if short.MatchesGeneratedURLFormat(uri) {
-			fullURL, err := short.GetFullURL(uri)
+			fullURL, err := short.GetFullURL(req.Context(), uri)
 
 			if err == nil {
 				res.Header().Add("Location", fullURL)

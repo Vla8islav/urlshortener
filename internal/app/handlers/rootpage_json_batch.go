@@ -2,14 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"io"
 	"net/http"
 )
 
-func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
+func RootPageJSONBatchHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 	if short == nil {
 		panic("Underlying infrastructure isn't initialised")
 	}
@@ -25,11 +24,12 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			http.Error(res, "Content type must be application/json", http.StatusBadRequest)
 			return
 		}
-		type URLShortenRequest struct {
-			URL string `json:"url"`
+		type URLShortenRequestRecord struct {
+			CorrelationID string `json:"correlation_id"`
+			OriginalURL   string `json:"original_url"`
 		}
 
-		var requestStruct URLShortenRequest
+		var requestStruct []URLShortenRequestRecord
 
 		body, err := io.ReadAll(req.Body)
 
@@ -45,34 +45,36 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		if !helpers.CheckIfItsURL(requestStruct.URL) {
-			http.Error(res, "Incorrect url format", http.StatusBadRequest)
-			return
-		}
-
-		shortenedURL, shortURLError := short.GetShortenedURL(req.Context(), requestStruct.URL)
-
-		returnStatus := http.StatusCreated
-		var urlAlreadyExist *app.URLExistError
-		if errors.As(shortURLError, &urlAlreadyExist) {
-			returnStatus = http.StatusConflict
-		}
-
 		type URLShortenResponse struct {
-			Result string `json:"result"`
+			CorrelationID string `json:"correlation_id"`
+			ShortURL      string `json:"short_url"`
+		}
+		var responseStruct []URLShortenResponse
+		for _, record := range requestStruct {
+			if !helpers.CheckIfItsURL(record.OriginalURL) {
+				http.Error(res, "Incorrect url format", http.StatusBadRequest)
+				return
+			}
+
+			shortenedURL, _ := short.GetShortenedURL(req.Context(), record.OriginalURL)
+
+			responseStruct = append(responseStruct, URLShortenResponse{
+				CorrelationID: record.CorrelationID,
+				ShortURL:      shortenedURL,
+			})
+
 		}
 
-		responseStruct := URLShortenResponse{Result: shortenedURL}
 		responseBuffer, err := json.Marshal(responseStruct)
 
 		if err != nil {
-			http.Error(res, "Failed to pack short url '"+shortenedURL+"' into json",
+			http.Error(res, "Failed to pack short url into json",
 				http.StatusInternalServerError)
 			return
 		}
 
 		res.Header().Add("Content-Type", "application/json")
-		res.WriteHeader(returnStatus)
+		res.WriteHeader(http.StatusCreated)
 		res.Write(responseBuffer)
 	}
 
