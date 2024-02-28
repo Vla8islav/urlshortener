@@ -23,7 +23,7 @@ func GetUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 		authBearerStr := req.Header.Get("Authorization")
 		if authBearerStr == "" {
 			http.Error(res, "Needs Authorization header with JWT bearer to function",
-				http.StatusBadRequest)
+				http.StatusUnauthorized)
 			return
 		}
 		bearerStr := strings.Replace(authBearerStr, "Bearer ", "", 1)

@@ -25,7 +25,7 @@ type Claims struct {
 }
 
 const TokenExp = time.Hour * 3
-const SecretKey = "supersecretkey"
+const SecretKey = "supersecretkey" // TODO: move to database
 
 func GetUserID(tokenString string) (int, error) {
 	claims := &Claims{}

@@ -27,6 +27,11 @@ func NewPostgresStorage(ctx context.Context) (Storage, error) {
 		panic("Couldn't create postgres table" + err.Error())
 	}
 
+	_, err = instance.connPool.Exec(ctx, "CREATE TABLE IF NOT EXISTS users (UserID integer PRIMARY KEY)")
+	if err != nil {
+		panic("Couldn't create postgres table" + err.Error())
+	}
+
 	return instance, nil
 }
 
