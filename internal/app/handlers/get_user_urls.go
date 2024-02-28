@@ -35,11 +35,16 @@ func GetUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 		}
 
 		urls, err := short.GetAllUserURLS(req.Context(), userID)
+		if err != nil {
+			http.Error(res, "Failed to get all user urls "+err.Error(),
+				http.StatusInternalServerError)
+			return
+		}
 
 		responseBuffer, err := json.Marshal(urls)
 
 		if err != nil {
-			http.Error(res, "Failed to pack short url into json",
+			http.Error(res, "Failed to pack short url into json "+err.Error(),
 				http.StatusInternalServerError)
 			return
 		}

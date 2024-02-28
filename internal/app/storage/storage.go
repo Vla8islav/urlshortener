@@ -16,7 +16,7 @@ type Storage interface {
 	GetFullURL(ctx context.Context, shortenedURL string) (string, bool)
 	GetShortenedURL(ctx context.Context, fullURL string) (string, bool)
 
-	GetAllURLRecordsByUser(ctx context.Context, userId int) ([]URLPair, error)
+	GetAllURLRecordsByUser(ctx context.Context, userID int) ([]URLPair, error)
 
 	Ping(ctx context.Context) error
 	Close()

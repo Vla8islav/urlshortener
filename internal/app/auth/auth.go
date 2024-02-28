@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const DEFAULT_USER_ID = 1
+const DefaultUserID = 1
 
 //func main() {
 //	tokenString, err := BuildJWTString()
@@ -24,8 +24,8 @@ type Claims struct {
 	UserID int
 }
 
-const TOKEN_EXP = time.Hour * 3
-const SECRET_KEY = "supersecretkey"
+const TokenExp = time.Hour * 3
+const SecretKey = "supersecretkey"
 
 func GetUserID(tokenString string) (int, error) {
 	claims := &Claims{}
@@ -34,14 +34,14 @@ func GetUserID(tokenString string) (int, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 			}
-			return []byte(SECRET_KEY), nil
+			return []byte(SecretKey), nil
 		})
 	if err != nil {
 		return -1, err
 	}
 
 	if !token.Valid {
-		return -1, fmt.Errorf("Token is not valid")
+		return -1, fmt.Errorf("token is not valid")
 	}
 
 	return claims.UserID, nil
@@ -53,14 +53,14 @@ func BuildJWTString(userID int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			// когда создан токен
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TOKEN_EXP)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExp)),
 		},
 		// собственное утверждение
 		UserID: userID,
 	})
 
 	// создаём строку токена
-	tokenString, err := token.SignedString([]byte(SECRET_KEY))
+	tokenString, err := token.SignedString([]byte(SecretKey))
 	if err != nil {
 		return "", err
 	}

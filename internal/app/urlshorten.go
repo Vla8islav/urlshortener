@@ -57,10 +57,10 @@ func (u URLShortenService) GetShortenedURL(ctx context.Context, urlToShorten str
 		if err != nil {
 			return "", -1, fmt.Errorf("Couldn't generate shortened URL" + err.Error())
 		}
-		u.Storage.AddURLPair(ctx, newShortenedURL, urlToShorten, uuid.New().String(), auth.DEFAULT_USER_ID)
+		u.Storage.AddURLPair(ctx, newShortenedURL, urlToShorten, uuid.New().String(), auth.DefaultUserID)
 		shortenedURL = newShortenedURL
 	}
-	return shortenedURL, auth.DEFAULT_USER_ID, err
+	return shortenedURL, auth.DefaultUserID, err
 }
 
 var ErrURLNotFound = errors.New("couldn't find a requested URL")

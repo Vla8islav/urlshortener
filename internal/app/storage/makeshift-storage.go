@@ -43,7 +43,7 @@ func loadDataFromFile(ctx context.Context, filename string, s Storage) error {
 			return err
 		}
 		fmt.Println(data)
-		s.AddURLPairInMemory(ctx, configuration.ReadFlags().ShortenerBaseURL+"/"+data.ShortURL, data.OriginalURL, data.UUID, auth.DEFAULT_USER_ID)
+		s.AddURLPairInMemory(ctx, configuration.ReadFlags().ShortenerBaseURL+"/"+data.ShortURL, data.OriginalURL, data.UUID, auth.DefaultUserID)
 
 	}
 	return nil
@@ -134,6 +134,6 @@ func (s MakeshiftStorage) Ping(ctx context.Context) error {
 	return nil
 }
 
-func (s MakeshiftStorage) GetAllURLRecordsByUser(ctx context.Context, userId int) ([]URLPair, error) {
+func (s MakeshiftStorage) GetAllURLRecordsByUser(ctx context.Context, userID int) ([]URLPair, error) {
 	return []URLPair{}, nil // TODO: actually implement
 }

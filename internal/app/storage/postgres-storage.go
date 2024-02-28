@@ -96,8 +96,8 @@ func (s PostgresStorage) Ping(ctx context.Context) error {
 	return err
 }
 
-func (s PostgresStorage) GetAllURLRecordsByUser(ctx context.Context, userId int) ([]URLPair, error) {
-	rows, err := s.connPool.Query(ctx, "SELECT shorturl, originalurl FROM "+urlMappingTableName+" WHERE userid = $1", userId)
+func (s PostgresStorage) GetAllURLRecordsByUser(ctx context.Context, userID int) ([]URLPair, error) {
+	rows, err := s.connPool.Query(ctx, "SELECT shorturl, originalurl FROM "+urlMappingTableName+" WHERE userid = $1", userID)
 	if err != nil {
 		return nil, err
 	}
