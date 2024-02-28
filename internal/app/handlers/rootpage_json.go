@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/Vla8islav/urlshortener/internal/app"
+	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"io"
 	"net/http"
@@ -50,9 +51,17 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		shortenedURL, shortURLError := short.GetShortenedURL(req.Context(), requestStruct.URL)
+		shortenedURL, userID, shortURLError := short.GetShortenedURL(req.Context(), requestStruct.URL)
+
+		jwtString, err := auth.BuildJWTString(userID)
+		if err != nil {
+			http.Error(res, "Failed to build jwt string", http.StatusInternalServerError)
+			return
+		}
+		res.Header().Add("Authorization", "Bearer "+jwtString)
 
 		returnStatus := http.StatusCreated
+
 		var urlAlreadyExist *app.URLExistError
 		if errors.As(shortURLError, &urlAlreadyExist) {
 			returnStatus = http.StatusConflict

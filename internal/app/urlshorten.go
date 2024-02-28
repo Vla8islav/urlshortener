@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"github.com/Vla8islav/urlshortener/internal/app/storage"
@@ -21,7 +22,8 @@ type URLShortenService struct {
 }
 
 type URLShortenServiceMethods interface {
-	GetShortenedURL(ctx context.Context, urlToShorten string) (string, error)
+	GetAllUserURLS(ctx context.Context, userID int) ([]storage.URLPair, error)
+	GetShortenedURL(ctx context.Context, urlToShorten string) (string, int, error)
 	GetFullURL(ctx context.Context, shortenedPostfix string) (string, error)
 	GenerateShortenedURL(ctx context.Context) (string, error)
 	MatchesGeneratedURLFormat(s string) bool
@@ -41,7 +43,7 @@ func (ue *URLExistError) Error() string {
 	return fmt.Sprintf("URL: %s Error: %v", ue.URL, ue.Err)
 }
 
-func (u URLShortenService) GetShortenedURL(ctx context.Context, urlToShorten string) (string, error) {
+func (u URLShortenService) GetShortenedURL(ctx context.Context, urlToShorten string) (string, int, error) {
 	if u.Storage == nil {
 		panic("Database not initialised")
 	}
@@ -53,12 +55,12 @@ func (u URLShortenService) GetShortenedURL(ctx context.Context, urlToShorten str
 	} else {
 		newShortenedURL, err := u.GenerateShortenedURL(ctx)
 		if err != nil {
-			return "", fmt.Errorf("Couldn't generate shortened URL" + err.Error())
+			return "", -1, fmt.Errorf("Couldn't generate shortened URL" + err.Error())
 		}
-		u.Storage.AddURLPair(ctx, newShortenedURL, urlToShorten, uuid.New().String())
+		u.Storage.AddURLPair(ctx, newShortenedURL, urlToShorten, uuid.New().String(), auth.DEFAULT_USER_ID)
 		shortenedURL = newShortenedURL
 	}
-	return shortenedURL, err
+	return shortenedURL, auth.DEFAULT_USER_ID, err
 }
 
 var ErrURLNotFound = errors.New("couldn't find a requested URL")
@@ -89,4 +91,12 @@ func (u URLShortenService) MatchesGeneratedURLFormat(s string) bool {
 	s = strings.Trim(s, "/")
 	r, _ := regexp.Compile("^[" + AllowedSymbolsInShortnedURL + "]+$")
 	return len(s) == len(GeneratedShortenedURLSample) && r.MatchString(s)
+}
+
+func (u URLShortenService) GetAllUserURLS(ctx context.Context, userID int) ([]storage.URLPair, error) {
+	records, err := u.Storage.GetAllURLRecordsByUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return records, nil
 }
