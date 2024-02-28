@@ -68,7 +68,7 @@ func (u URLShortenService) GetShortenedURL(ctx context.Context, urlToShorten str
 			userID, err = u.Storage.GetNewUserID(ctx)
 		}
 		if err != nil {
-			fmt.Errorf("Couldn't create new user id" + err.Error())
+			return "", -1, fmt.Errorf("couldn't create new user id" + err.Error())
 		}
 		newShortenedURL, err := u.GenerateShortenedURL(ctx)
 		if err != nil {

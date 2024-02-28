@@ -21,7 +21,7 @@ func TestExpandHandler(t *testing.T) {
 		panic(err)
 	}
 	short, _ := app.NewURLShortenService(ctx, s)
-	shortenedURL, _, _ := short.GetShortenedURL(ctx, "http://ya.ru")
+	shortenedURL, _, _ := short.GetShortenedURL(ctx, "http://ya.ru", "")
 
 	type expectedResult struct {
 		code int
