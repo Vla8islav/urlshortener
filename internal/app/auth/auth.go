@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
+	"strings"
 	"time"
 )
 
@@ -26,6 +27,10 @@ type Claims struct {
 
 const TokenExp = time.Hour * 3
 const SecretKey = "supersecretkey" // TODO: move to database
+
+func GetBearerFromBearerHeader(bearerHeader string) string {
+	return strings.Replace(bearerHeader, "Bearer ", "", 1)
+}
 
 func GetUserID(tokenString string) (int, error) {
 	claims := &Claims{}

@@ -5,7 +5,6 @@ import (
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"net/http"
-	"strings"
 )
 
 func GetUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
@@ -26,7 +25,7 @@ func GetUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 				http.StatusUnauthorized)
 			return
 		}
-		bearerStr := strings.Replace(authBearerStr, "Bearer ", "", 1)
+		bearerStr := auth.GetBearerFromBearerHeader(authBearerStr)
 		userID, err := auth.GetUserID(bearerStr)
 		if err != nil {
 			http.Error(res, "Couldn't get user id from bearer",

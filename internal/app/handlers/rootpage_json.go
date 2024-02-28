@@ -51,14 +51,8 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		shortenedURL, userID, shortURLError := short.GetShortenedURL(req.Context(), requestStruct.URL)
-
-		jwtString, err := auth.BuildJWTString(userID)
-		if err != nil {
-			http.Error(res, "Failed to build jwt string", http.StatusInternalServerError)
-			return
-		}
-		res.Header().Add("Authorization", "Bearer "+jwtString)
+		authBearerStr := req.Header.Get("Authorization")
+		shortenedURL, userID, shortURLError := short.GetShortenedURL(req.Context(), requestStruct.URL, authBearerStr)
 
 		returnStatus := http.StatusCreated
 
@@ -66,6 +60,13 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 		if errors.As(shortURLError, &urlAlreadyExist) {
 			returnStatus = http.StatusConflict
 		}
+
+		jwtString, err := auth.BuildJWTString(userID)
+		if err != nil {
+			http.Error(res, "Failed to build jwt string", http.StatusInternalServerError)
+			return
+		}
+		res.Header().Add("Authorization", "Bearer "+jwtString)
 
 		type URLShortenResponse struct {
 			Result string `json:"result"`

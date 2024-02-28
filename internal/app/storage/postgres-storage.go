@@ -2,7 +2,9 @@ package storage
 
 import (
 	"context"
+	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -63,6 +65,11 @@ type urlMappingTableRecord struct {
 	UUID        string `json:"uuid"`
 	ShortURL    string `json:"short_url"`
 	OriginalURL string `json:"original_url"`
+	UserID      int    `json:"user_id"`
+}
+
+type usersTableRecord struct {
+	UserID sql.NullInt32 `json:"userid"`
 }
 
 func (s PostgresStorage) GetFullURL(ctx context.Context, shortenedURL string) (string, bool) {
@@ -80,17 +87,17 @@ func (s PostgresStorage) GetFullURL(ctx context.Context, shortenedURL string) (s
 
 }
 
-func (s PostgresStorage) GetShortenedURL(ctx context.Context, fullURL string) (string, bool) {
+func (s PostgresStorage) GetShortenedURL(ctx context.Context, fullURL string) (string, int, bool) {
 	ctx, conn := getPostgresConnection(ctx)
 	defer conn.Close(ctx)
 
-	row := conn.QueryRow(ctx, "SELECT uuid, shorturl, originalurl FROM "+urlMappingTableName+" WHERE originalurl = $1  LIMIT 1", fullURL)
+	row := conn.QueryRow(ctx, "SELECT uuid, shorturl, originalurl, userid FROM "+urlMappingTableName+" WHERE originalurl = $1  LIMIT 1", fullURL)
 	var u urlMappingTableRecord
-	err := row.Scan(&u.UUID, &u.ShortURL, &u.OriginalURL)
+	err := row.Scan(&u.UUID, &u.ShortURL, &u.OriginalURL, &u.UserID)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return "", false
+		return "", -1, false
 	} else if err == nil {
-		return u.ShortURL, true
+		return u.ShortURL, u.UserID, true
 	} else {
 		panic(err)
 	}
@@ -118,4 +125,32 @@ func (s PostgresStorage) GetAllURLRecordsByUser(ctx context.Context, userID int)
 		rowSlice = append(rowSlice, r)
 	}
 	return rowSlice, nil
+}
+
+func (s PostgresStorage) GetNewUserID(ctx context.Context) (int, error) {
+	const maxReqUserID = "SELECT max(userid) FROM users"
+	row := s.connPool.QueryRow(ctx, maxReqUserID)
+
+	var u usersTableRecord
+	err := row.Scan(&u.UserID)
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		return -1, fmt.Errorf("couldn't get user id")
+	} else if err == nil {
+		if !u.UserID.Valid {
+			u.UserID = sql.NullInt32{
+				Int32: 0,
+				Valid: true,
+			}
+		}
+		newUserID := u.UserID.Int32 + 1
+		_, err := s.connPool.Exec(ctx, "INSERT INTO users (userid) values ($1)", newUserID)
+		if err != nil {
+			panic("Couldn't insert data into 'users' postgres table")
+		}
+		return int(newUserID), nil
+	} else {
+		panic(err)
+	}
+
 }

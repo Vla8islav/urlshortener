@@ -23,7 +23,7 @@ type URLShortenService struct {
 
 type URLShortenServiceMethods interface {
 	GetAllUserURLS(ctx context.Context, userID int) ([]storage.URLPair, error)
-	GetShortenedURL(ctx context.Context, urlToShorten string) (string, int, error)
+	GetShortenedURL(ctx context.Context, urlToShorten string, bearerToken string) (string, int, error)
 	GetFullURL(ctx context.Context, shortenedPostfix string) (string, error)
 	GenerateShortenedURL(ctx context.Context) (string, error)
 	MatchesGeneratedURLFormat(s string) bool
@@ -43,24 +43,41 @@ func (ue *URLExistError) Error() string {
 	return fmt.Sprintf("URL: %s Error: %v", ue.URL, ue.Err)
 }
 
-func (u URLShortenService) GetShortenedURL(ctx context.Context, urlToShorten string) (string, int, error) {
+func (u URLShortenService) GetShortenedURL(ctx context.Context, urlToShorten string, bearerHeader string) (string, int, error) {
 	if u.Storage == nil {
 		panic("Database not initialised")
 	}
-	shortenedURL := ""
+
+	bearer := auth.GetBearerFromBearerHeader(bearerHeader)
+
 	var err error
-	if existingShortenedURL, alreadyExist := u.Storage.GetShortenedURL(ctx, urlToShorten); alreadyExist {
+	userID, err := auth.GetUserID(bearer)
+	if err != nil {
+		userID = -1
+	}
+
+	shortenedURL := ""
+
+	if existingShortenedURL, id, alreadyExist := u.Storage.GetShortenedURL(ctx, urlToShorten); alreadyExist {
 		shortenedURL = existingShortenedURL
 		err = &URLExistError{Err: err, URL: existingShortenedURL}
+		userID = id
+		// TODO: Resolve conflict
 	} else {
+		if userID == -1 {
+			userID, err = u.Storage.GetNewUserID(ctx)
+		}
+		if err != nil {
+			fmt.Errorf("Couldn't create new user id" + err.Error())
+		}
 		newShortenedURL, err := u.GenerateShortenedURL(ctx)
 		if err != nil {
 			return "", -1, fmt.Errorf("Couldn't generate shortened URL" + err.Error())
 		}
-		u.Storage.AddURLPair(ctx, newShortenedURL, urlToShorten, uuid.New().String(), auth.DefaultUserID)
+		u.Storage.AddURLPair(ctx, newShortenedURL, urlToShorten, uuid.New().String(), userID)
 		shortenedURL = newShortenedURL
 	}
-	return shortenedURL, auth.DefaultUserID, err
+	return shortenedURL, userID, err
 }
 
 var ErrURLNotFound = errors.New("couldn't find a requested URL")

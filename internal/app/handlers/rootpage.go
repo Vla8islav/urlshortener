@@ -41,7 +41,8 @@ func RootPageHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		shortenedURL, userID, shortURLError := short.GetShortenedURL(req.Context(), bodyString)
+		authBearerStr := req.Header.Get("Authorization")
+		shortenedURL, userID, shortURLError := short.GetShortenedURL(req.Context(), bodyString, authBearerStr)
 
 		jwtString, err := auth.BuildJWTString(userID)
 		if err != nil {

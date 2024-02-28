@@ -116,11 +116,11 @@ func (s MakeshiftStorage) GetFullURL(ctx context.Context, shortenedURL string) (
 	return value, exists
 }
 
-func (s MakeshiftStorage) GetShortenedURL(ctx context.Context, fullURL string) (string, bool) {
+func (s MakeshiftStorage) GetShortenedURL(ctx context.Context, fullURL string) (string, int, bool) {
 	mu.Lock()
 	defer mu.Unlock()
 	value, exists := s.urlToShort[fullURL]
-	return value, exists
+	return value, auth.DefaultUserID, exists
 }
 
 func (s MakeshiftStorage) Ping(ctx context.Context) error {
@@ -136,4 +136,8 @@ func (s MakeshiftStorage) Ping(ctx context.Context) error {
 
 func (s MakeshiftStorage) GetAllURLRecordsByUser(ctx context.Context, userID int) ([]URLPair, error) {
 	return []URLPair{}, nil // TODO: actually implement
+}
+
+func (s MakeshiftStorage) GetNewUserID(ctx context.Context) (int, error) {
+	return auth.DefaultUserID, nil
 }

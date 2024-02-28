@@ -14,9 +14,10 @@ type Storage interface {
 	AddURLPair(ctx context.Context, shortenedURL string, fullURL string, uuidStr string, userID int)
 	AddURLPairInMemory(ctx context.Context, shortenedURL string, fullURL string, uuidStr string, userID int)
 	GetFullURL(ctx context.Context, shortenedURL string) (string, bool)
-	GetShortenedURL(ctx context.Context, fullURL string) (string, bool)
+	GetShortenedURL(ctx context.Context, fullURL string) (string, int, bool)
 
 	GetAllURLRecordsByUser(ctx context.Context, userID int) ([]URLPair, error)
+	GetNewUserID(ctx context.Context) (int, error)
 
 	Ping(ctx context.Context) error
 	Close()

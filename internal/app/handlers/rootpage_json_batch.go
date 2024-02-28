@@ -56,7 +56,8 @@ func RootPageJSONBatchHandler(short app.URLShortenServiceMethods) http.HandlerFu
 				return
 			}
 
-			shortenedURL, _, _ := short.GetShortenedURL(req.Context(), record.OriginalURL)
+			authBearerStr := req.Header.Get("Authorization")
+			shortenedURL, _, _ := short.GetShortenedURL(req.Context(), record.OriginalURL, authBearerStr)
 
 			responseStruct = append(responseStruct, URLShortenResponse{
 				CorrelationID: record.CorrelationID,
