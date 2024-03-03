@@ -161,7 +161,7 @@ func (s PostgresStorage) DeleteURL(ctx context.Context, shortenedURL string, use
 	url, _ := helpers.ShortKeyToURL(shortenedURL)
 	r, err := s.connPool.Exec(ctx, "update url_mapping set deleted = TRUE where userid = $1 and shorturl = $2", strconv.Itoa(userID), url)
 	if r.RowsAffected() == 0 {
-		panic(fmt.Sprintf("We couldn't find url"))
+		panic("We couldn't find url")
 	}
 	if err != nil {
 		panic(fmt.Sprintf("Couldn't set deletion flag for %s and user id %d", shortenedURL, userID))
