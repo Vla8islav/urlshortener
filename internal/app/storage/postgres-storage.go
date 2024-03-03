@@ -24,7 +24,7 @@ func NewPostgresStorage(ctx context.Context) (Storage, error) {
 		panic("Couldn't connect to the postgres server" + err.Error())
 	}
 
-	_, err = instance.connPool.Exec(ctx, "CREATE TABLE IF NOT EXISTS url_mapping (UUID char(36) PRIMARY KEY, ShortURL varchar(2000), OriginalURL varchar(2000), UserID integer)")
+	_, err = instance.connPool.Exec(ctx, "CREATE TABLE IF NOT EXISTS url_mapping (UUID char(36) PRIMARY KEY, ShortURL varchar(2000), OriginalURL varchar(2000), UserID integer, Deleted boolean DEFAULT FALSE)")
 	if err != nil {
 		panic("Couldn't create postgres table" + err.Error())
 	}

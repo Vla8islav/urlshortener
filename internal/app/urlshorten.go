@@ -43,7 +43,9 @@ func (ue *URLExistError) Error() string {
 	return fmt.Sprintf("URL: %s Error: %v", ue.URL, ue.Err)
 }
 
-func (u URLShortenService) GetShortenedURL(ctx context.Context, urlToShorten string, bearerHeader string) (string, int, error) {
+func (u URLShortenService) GetShortenedURL(ctx context.Context,
+	urlToShorten string,
+	bearerHeader string) (string, int, error) {
 	if u.Storage == nil {
 		panic("Database not initialised")
 	}
