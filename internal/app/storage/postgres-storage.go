@@ -9,7 +9,6 @@ import (
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"strconv"
 )
 
 const urlMappingTableName = "url_mapping"
@@ -157,14 +156,14 @@ func (s PostgresStorage) GetNewUserID(ctx context.Context) (int, error) {
 
 }
 
-func (s PostgresStorage) DeleteURL(ctx context.Context, shortenedURL string, userID int) error {
+func (s PostgresStorage) DeleteURL(ctx context.Context, shortenedURL string) error {
 	url, _ := helpers.ShortKeyToURL(shortenedURL)
-	r, err := s.connPool.Exec(ctx, "update url_mapping set deleted = TRUE where userid = $1 and shorturl = $2", strconv.Itoa(userID), url)
+	r, err := s.connPool.Exec(ctx, "update url_mapping set deleted = TRUE where shorturl = $1", url)
 	if r.RowsAffected() == 0 {
 		panic("We couldn't find url")
 	}
 	if err != nil {
-		panic(fmt.Sprintf("Couldn't set deletion flag for %s and user id %d", shortenedURL, userID))
+		panic(fmt.Sprintf("Couldn't set deletion flag for %s and user id %d", shortenedURL))
 	}
 	return err
 

@@ -6,7 +6,6 @@ import (
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"io"
 	"net/http"
-	"strconv"
 )
 
 func UserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
@@ -16,22 +15,23 @@ func UserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 
 	return func(res http.ResponseWriter, req *http.Request) {
 
-		authBearerStr := req.Header.Get("Authorization")
-		if authBearerStr == "" {
-			http.Error(res, "Needs Authorization header with JWT bearer to function",
-				http.StatusUnauthorized)
-			return
-		}
-		bearerStr := auth.GetBearerFromBearerHeader(authBearerStr)
-		userID, err := auth.GetUserID(bearerStr)
-		if err != nil {
-			http.Error(res, "Couldn't get user id from bearer",
-				http.StatusBadRequest)
-			return
-		}
-
 		switch req.Method {
 		case http.MethodGet:
+
+			authBearerStr := req.Header.Get("Authorization")
+			if authBearerStr == "" {
+				http.Error(res, "Needs Authorization header with JWT bearer to function",
+					http.StatusUnauthorized)
+				return
+			}
+			bearerStr := auth.GetBearerFromBearerHeader(authBearerStr)
+			userID, err := auth.GetUserID(bearerStr)
+			if err != nil {
+				http.Error(res, "Couldn't get user id from bearer",
+					http.StatusBadRequest)
+				return
+			}
+
 			urls, err := short.GetAllUserURLS(req.Context(), userID)
 			if err != nil {
 				http.Error(res, "Failed to get all user urls "+err.Error(),
@@ -67,9 +67,9 @@ func UserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			}
 
 			for _, url := range urls {
-				err = short.DeleteLink(req.Context(), url, userID)
+				err = short.DeleteLink(req.Context(), url)
 				if err != nil {
-					http.Error(res, "Couldn't delete link/userID pair "+url+" "+strconv.Itoa(userID)+err.Error(),
+					http.Error(res, "Couldn't delete link/userID pair "+url+err.Error(),
 						http.StatusInternalServerError)
 					return
 				}

@@ -19,7 +19,7 @@ type Storage interface {
 	GetAllURLRecordsByUser(ctx context.Context, userID int) ([]URLPair, error)
 	GetNewUserID(ctx context.Context) (int, error)
 
-	DeleteURL(ctx context.Context, shortenedURL string, userID int) error
+	DeleteURL(ctx context.Context, shortenedURL string) error
 
 	Ping(ctx context.Context) error
 	Close()
