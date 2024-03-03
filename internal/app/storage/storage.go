@@ -13,7 +13,7 @@ type URLPair struct {
 type Storage interface {
 	AddURLPair(ctx context.Context, shortenedURL string, fullURL string, uuidStr string, userID int)
 	AddURLPairInMemory(ctx context.Context, shortenedURL string, fullURL string, uuidStr string, userID int)
-	GetFullURL(ctx context.Context, shortenedURL string) (string, bool)
+	GetFullURL(ctx context.Context, shortenedURL string) (string, error)
 	GetShortenedURL(ctx context.Context, fullURL string) (string, int, bool)
 
 	GetAllURLRecordsByUser(ctx context.Context, userID int) ([]URLPair, error)

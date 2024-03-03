@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
+	"github.com/Vla8islav/urlshortener/internal/custom_errors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -67,21 +68,26 @@ type urlMappingTableRecord struct {
 	ShortURL    string `json:"short_url"`
 	OriginalURL string `json:"original_url"`
 	UserID      int    `json:"user_id"`
+	Deleted     bool   `json:"deleted"`
 }
 
 type usersTableRecord struct {
 	UserID sql.NullInt32 `json:"userid"`
 }
 
-func (s PostgresStorage) GetFullURL(ctx context.Context, shortenedURL string) (string, bool) {
+func (s PostgresStorage) GetFullURL(ctx context.Context, shortenedURL string) (string, error) {
 
-	row := s.connPool.QueryRow(ctx, "SELECT uuid, shorturl, originalurl FROM "+urlMappingTableName+" WHERE shorturl = $1  LIMIT 1", shortenedURL)
+	row := s.connPool.QueryRow(ctx, "SELECT uuid, shorturl, originalurl, deleted FROM "+urlMappingTableName+" WHERE shorturl = $1  LIMIT 1", shortenedURL)
 	var u urlMappingTableRecord
-	err := row.Scan(&u.UUID, &u.ShortURL, &u.OriginalURL)
+	err := row.Scan(&u.UUID, &u.ShortURL, &u.OriginalURL, &u.Deleted)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return "", false
+		return "", custom_errors.ErrURLNotFound
 	} else if err == nil {
-		return u.OriginalURL, true
+		if !u.Deleted {
+			return u.OriginalURL, nil
+		} else {
+			return "", custom_errors.ErrURLDeleted
+		}
 	} else {
 		panic(err)
 	}

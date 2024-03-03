@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
+	"github.com/Vla8islav/urlshortener/internal/custom_errors"
 	"os"
 	"strings"
 	"sync"
@@ -109,11 +110,15 @@ func (s MakeshiftStorage) AddURLPairInMemory(ctx context.Context, shortenedURL s
 	s.uuidList[uuidStr] = struct{}{}
 }
 
-func (s MakeshiftStorage) GetFullURL(ctx context.Context, shortenedURL string) (string, bool) {
+func (s MakeshiftStorage) GetFullURL(ctx context.Context, shortenedURL string) (string, error) {
 	mu.Lock()
 	defer mu.Unlock()
 	value, exists := s.shortToURL[shortenedURL]
-	return value, exists
+	if exists {
+		return value, nil
+	} else {
+		return value, custom_errors.ErrURLNotFound
+	}
 }
 
 func (s MakeshiftStorage) GetShortenedURL(ctx context.Context, fullURL string) (string, int, bool) {

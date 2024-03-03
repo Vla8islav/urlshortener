@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
@@ -83,19 +82,13 @@ func (u URLShortenService) GetShortenedURL(ctx context.Context,
 	return shortenedURL, userID, err
 }
 
-var ErrURLNotFound = errors.New("couldn't find a requested URL")
-
 func (u URLShortenService) GetFullURL(ctx context.Context, shortenedPostfix string) (string, error) {
 	fullSortURL, err := url.JoinPath(configuration.ReadFlags().ShortenerBaseURL, shortenedPostfix)
 	if err != nil {
 		return "", err
 	}
 	longURL, found := u.Storage.GetFullURL(ctx, fullSortURL)
-	if found {
-		return longURL, nil
-	} else {
-		return longURL, ErrURLNotFound
-	}
+	return longURL, found
 }
 
 func (u URLShortenService) GenerateShortenedURL(ctx context.Context) (string, error) {

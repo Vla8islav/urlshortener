@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"github.com/Vla8islav/urlshortener/internal/app"
+	"github.com/Vla8islav/urlshortener/internal/custom_errors"
 	"net/http"
 )
 
@@ -29,8 +30,10 @@ func ExpandHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			if err == nil {
 				res.Header().Add("Location", fullURL)
 				res.WriteHeader(http.StatusTemporaryRedirect)
-			} else if errors.Is(err, app.ErrURLNotFound) {
+			} else if errors.Is(err, custom_errors.ErrURLNotFound) {
 				http.Error(res, "URL not found", http.StatusNotFound)
+			} else if errors.Is(err, custom_errors.ErrURLDeleted) {
+				http.Error(res, "URL deleted", http.StatusGone)
 			} else {
 				http.Error(res, "problem occured while extracting URL: "+err.Error(), http.StatusInternalServerError)
 				return
