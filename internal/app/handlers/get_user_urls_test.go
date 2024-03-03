@@ -53,7 +53,7 @@ func TestGetUserURLSHandler(t *testing.T) {
 				return validRequest
 
 			},
-			want: expectedResult{code: 200},
+			want: expectedResult{code: http.StatusOK},
 		},
 		{
 			name: "Successful deletion",
@@ -73,7 +73,7 @@ func TestGetUserURLSHandler(t *testing.T) {
 				return validRequest
 
 			},
-			want: expectedResult{code: 200},
+			want: expectedResult{code: http.StatusAccepted},
 		},
 	}
 
