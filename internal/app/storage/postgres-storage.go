@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
-	"github.com/Vla8islav/urlshortener/internal/custom_errors"
+	"github.com/Vla8islav/urlshortener/internal/errcustom"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -81,12 +81,12 @@ func (s PostgresStorage) GetFullURL(ctx context.Context, shortenedURL string) (s
 	var u urlMappingTableRecord
 	err := row.Scan(&u.UUID, &u.ShortURL, &u.OriginalURL, &u.Deleted)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return "", custom_errors.ErrURLNotFound
+		return "", errcustom.ErrURLNotFound
 	} else if err == nil {
 		if !u.Deleted {
 			return u.OriginalURL, nil
 		} else {
-			return "", custom_errors.ErrURLDeleted
+			return "", errcustom.ErrURLDeleted
 		}
 	} else {
 		panic(err)
@@ -169,7 +169,7 @@ func (s PostgresStorage) DeleteURL(ctx context.Context, shortenedURL string) err
 		panic("We couldn't find url")
 	}
 	if err != nil {
-		panic(fmt.Sprintf("Couldn't set deletion flag for %s and user id %d", shortenedURL))
+		panic(fmt.Sprintf("Couldn't set deletion flag for %s", shortenedURL))
 	}
 	return err
 

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
-	"github.com/Vla8islav/urlshortener/internal/custom_errors"
+	"github.com/Vla8islav/urlshortener/internal/errcustom"
 	"os"
 	"strings"
 	"sync"
@@ -117,7 +117,7 @@ func (s MakeshiftStorage) GetFullURL(ctx context.Context, shortenedURL string) (
 	if exists {
 		return value, nil
 	} else {
-		return value, custom_errors.ErrURLNotFound
+		return value, errcustom.ErrURLNotFound
 	}
 }
 
