@@ -141,3 +141,7 @@ func (s MakeshiftStorage) GetAllURLRecordsByUser(ctx context.Context, userID int
 func (s MakeshiftStorage) GetNewUserID(ctx context.Context) (int, error) {
 	return auth.DefaultUserID, nil
 }
+
+func (s MakeshiftStorage) DeleteURL(ctx context.Context, shortenedURL string, userID int) error {
+	return nil // TODO: actually implement
+}

@@ -27,6 +27,7 @@ type URLShortenServiceMethods interface {
 	GetFullURL(ctx context.Context, shortenedPostfix string) (string, error)
 	GenerateShortenedURL(ctx context.Context) (string, error)
 	MatchesGeneratedURLFormat(s string) bool
+	DeleteLink(ctx context.Context, shortenedURL string, userID int) error
 }
 
 func NewURLShortenService(ctx context.Context, s storage.Storage) (URLShortenServiceMethods, error) {
@@ -64,7 +65,6 @@ func (u URLShortenService) GetShortenedURL(ctx context.Context,
 		shortenedURL = existingShortenedURL
 		err = &URLExistError{Err: err, URL: existingShortenedURL}
 		userID = id
-		// TODO: Resolve conflict
 	} else {
 		if userID == -1 {
 			userID, err = u.Storage.GetNewUserID(ctx)
@@ -98,8 +98,8 @@ func (u URLShortenService) GetFullURL(ctx context.Context, shortenedPostfix stri
 }
 
 func (u URLShortenService) GenerateShortenedURL(ctx context.Context) (string, error) {
-	fullPath, err := url.JoinPath(configuration.ReadFlags().ShortenerBaseURL,
-		helpers.GenerateString(len(GeneratedShortenedURLSample), AllowedSymbolsInShortnedURL))
+	shortKey := helpers.GenerateString(len(GeneratedShortenedURLSample), AllowedSymbolsInShortnedURL)
+	fullPath, err := helpers.ShortKeyToURL(shortKey)
 	if err != nil {
 		return fullPath, err
 	}
@@ -118,4 +118,8 @@ func (u URLShortenService) GetAllUserURLS(ctx context.Context, userID int) ([]st
 		return nil, err
 	}
 	return records, nil
+}
+
+func (u URLShortenService) DeleteLink(ctx context.Context, shortenedURL string, userID int) error {
+	return u.Storage.DeleteURL(ctx, shortenedURL, userID)
 }

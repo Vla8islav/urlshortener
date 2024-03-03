@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
@@ -53,6 +55,26 @@ func TestGetUserURLSHandler(t *testing.T) {
 			},
 			want: expectedResult{code: 200},
 		},
+		{
+			name: "Successful deletion",
+			request: func() *http.Request {
+				body := []string{helpers.URLToShortKey(randomShortenedURL)}
+				bodyJSON, err := json.Marshal(body)
+				if err != nil {
+					panic("Couldn't do a deletion test")
+				}
+				bodyReaderJSON := bytes.NewReader(bodyJSON)
+
+				validRequest := httptest.NewRequest(http.MethodDelete, "/", bodyReaderJSON)
+				validRequest.Header = http.Header{
+					"Content-Type":  []string{"text/plain"},
+					"Authorization": []string{"Bearer " + randomLinkBearer},
+				}
+				return validRequest
+
+			},
+			want: expectedResult{code: 200},
+		},
 	}
 
 	for _, testData := range testDataArray {
@@ -60,7 +82,7 @@ func TestGetUserURLSHandler(t *testing.T) {
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 
-			GetUserURLSHandler(short)(w, testData.request())
+			UserURLSHandler(short)(w, testData.request())
 
 			res := w.Result()
 			// получаем и проверяем тело запроса

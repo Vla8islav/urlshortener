@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
+	"io"
 	"net/http"
+	"strconv"
 )
 
-func GetUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
+func UserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 	if short == nil {
 		panic("Service wasn't initialised")
 	}
@@ -50,6 +52,30 @@ func GetUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			res.Write(responseBuffer)
 
 		case http.MethodDelete:
+			buffer, err := io.ReadAll(req.Body)
+			if err != nil {
+				http.Error(res, "Couldn't read DELETE request body "+err.Error(),
+					http.StatusInternalServerError)
+				return
+			}
+			var urls []string
+			err = json.Unmarshal(buffer, &urls)
+			if err != nil {
+				http.Error(res, "Incorrect format of the DELETE request body "+err.Error(),
+					http.StatusInternalServerError)
+				return
+			}
+
+			for _, url := range urls {
+				err = short.DeleteLink(req.Context(), url, userID)
+				if err != nil {
+					http.Error(res, "Couldn't delete link/userID pair "+url+" "+strconv.Itoa(userID)+err.Error(),
+						http.StatusInternalServerError)
+					return
+				}
+
+			}
+			res.WriteHeader(http.StatusAccepted)
 
 		default:
 			http.Error(res, "Only GET or DELETE requests are allowed to /api/user/urls", http.StatusBadRequest)
