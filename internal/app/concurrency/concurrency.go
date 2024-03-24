@@ -12,7 +12,7 @@ type Task struct {
 
 func NewQueue() *Queue {
 	return &Queue{
-		ch: make(chan *Task, 1),
+		ch: make(chan *Task, 5),
 	}
 }
 

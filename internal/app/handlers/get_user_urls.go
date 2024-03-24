@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
@@ -8,6 +9,13 @@ import (
 	"io"
 	"net/http"
 )
+
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
 
 func UserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 	if short == nil {
@@ -69,8 +77,9 @@ func UserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 
 			queue := concurrency.NewQueue()
 			const MAX_WORKER_COUNT = 10
-			for i := 0; i < MAX_WORKER_COUNT; i++ {
-				w := concurrency.NewWorker(i, queue, concurrency.NewDeleter(&short, req.Context()))
+
+			for i := 0; i < min(MAX_WORKER_COUNT, len(urls)); i++ {
+				w := concurrency.NewWorker(i, queue, concurrency.NewDeleter(&short, context.Background()))
 				go w.Loop()
 			}
 
