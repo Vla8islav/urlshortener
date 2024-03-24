@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
-	"github.com/Vla8islav/urlshortener/internal/errcustom"
+	"github.com/Vla8islav/urlshortener/internal/app/errcustom"
 	"os"
 	"strings"
 	"sync"

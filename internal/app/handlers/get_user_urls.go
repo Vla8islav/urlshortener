@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
+	"github.com/Vla8islav/urlshortener/internal/app/concurrency"
 	"io"
 	"net/http"
 )
@@ -66,14 +67,15 @@ func UserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 				return
 			}
 
-			for _, url := range urls {
-				err = short.DeleteLink(req.Context(), url)
-				if err != nil {
-					http.Error(res, "Couldn't delete link/userID pair "+url+err.Error(),
-						http.StatusInternalServerError)
-					return
-				}
+			queue := concurrency.NewQueue()
+			const MAX_WORKER_COUNT = 10
+			for i := 0; i < MAX_WORKER_COUNT; i++ {
+				w := concurrency.NewWorker(i, queue, concurrency.NewDeleter(&short, req.Context()))
+				go w.Loop()
+			}
 
+			for _, url := range urls {
+				queue.Push(&concurrency.Task{URL: url})
 			}
 			res.WriteHeader(http.StatusAccepted)
 

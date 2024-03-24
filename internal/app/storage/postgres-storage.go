@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
+	"github.com/Vla8islav/urlshortener/internal/app/errcustom"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
-	"github.com/Vla8islav/urlshortener/internal/errcustom"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )

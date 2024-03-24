@@ -3,7 +3,7 @@ package handlers
 import (
 	"errors"
 	"github.com/Vla8islav/urlshortener/internal/app"
-	"github.com/Vla8islav/urlshortener/internal/errcustom"
+	"github.com/Vla8islav/urlshortener/internal/app/errcustom"
 	"net/http"
 )
 
