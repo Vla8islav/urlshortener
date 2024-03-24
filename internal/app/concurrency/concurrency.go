@@ -30,9 +30,9 @@ func (q *Queue) PopWait() *Task {
 	return <-q.ch
 }
 
-func NewWorker(workerId int, queue *Queue, deleter *Deleter) *Worker {
+func NewWorker(workerID int, queue *Queue, deleter *Deleter) *Worker {
 	w := Worker{
-		workerId: workerId,
+		workerID: workerID,
 		queue:    queue,
 		deleter:  deleter,
 	}
@@ -40,7 +40,7 @@ func NewWorker(workerId int, queue *Queue, deleter *Deleter) *Worker {
 }
 
 type Worker struct {
-	workerId int
+	workerID int
 	queue    *Queue
 	deleter  *Deleter
 }
@@ -55,7 +55,7 @@ func (w *Worker) Loop() {
 			continue
 		}
 
-		fmt.Printf("worker #%d deleted URL %s\n", w.workerId, t.URL)
+		fmt.Printf("worker #%d deleted URL %s\n", w.workerID, t.URL)
 	}
 }
 
