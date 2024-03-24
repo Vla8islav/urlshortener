@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"github.com/Vla8islav/urlshortener/internal/app"
+	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"io"
 	"net/http"
@@ -40,7 +41,15 @@ func RootPageHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		shortenedURL, shortURLError := short.GetShortenedURL(req.Context(), bodyString)
+		authBearerStr := req.Header.Get("Authorization")
+		shortenedURL, userID, shortURLError := short.GetShortenedURL(req.Context(), bodyString, authBearerStr)
+
+		jwtString, err := auth.BuildJWTString(userID)
+		if err != nil {
+			http.Error(res, "Failed to build jwt string", http.StatusInternalServerError)
+			return
+		}
+		res.Header().Add("Authorization", "Bearer "+jwtString)
 
 		returnStatus := http.StatusCreated
 		var urlAlreadyExist *app.URLExistError

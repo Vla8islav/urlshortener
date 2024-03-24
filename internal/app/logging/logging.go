@@ -14,6 +14,7 @@ type (
 		body                  []byte
 		contentTypeHeader     string
 		contentEncodingHeader string
+		cookies               string
 	}
 
 	// добавляем реализацию http.ResponseWriter
@@ -30,6 +31,7 @@ func (r *loggingResponseWriter) Write(b []byte) (int, error) {
 	r.responseData.body = b
 	r.responseData.contentTypeHeader = r.Header().Get("Content-Type")
 	r.responseData.contentEncodingHeader = r.Header().Get("Content-Encoding")
+	r.responseData.cookies = r.Header().Get("Cookie")
 	return size, err
 }
 
@@ -48,6 +50,7 @@ func WithLogging(sugaredLogger zap.SugaredLogger, h http.HandlerFunc) http.Handl
 		uri := r.RequestURI
 		// метод запроса
 		method := r.Method
+		cookies := r.Cookies()
 
 		responseData := &responseData{
 			status: 0,
@@ -70,12 +73,14 @@ func WithLogging(sugaredLogger zap.SugaredLogger, h http.HandlerFunc) http.Handl
 		sugaredLogger.Infoln(
 			"uri", uri,
 			"method", method,
+			"request_cookies", cookies,
 			"duration", duration,
 			"status", responseData.status, // получаем перехваченный код статуса ответа
 			"size", responseData.size, // получаем перехваченный размер ответа
 			"Content-Type", responseData.contentTypeHeader,
 			"Content-Encoding", responseData.contentEncodingHeader,
 			"body", string(responseData.body),
+			"response_cookies", string(responseData.cookies),
 		)
 
 	}
