@@ -7,7 +7,8 @@ import (
 )
 
 type Task struct {
-	URL string
+	URL    string
+	UserID int
 }
 
 func NewQueue() *Queue {
@@ -71,6 +72,6 @@ func NewDeleter(short *app.URLShortenServiceMethods, context context.Context) *D
 	}
 }
 
-func (r *Deleter) Delete(url string) error {
-	return (*r.short).DeleteLink(r.context, url)
+func (r *Deleter) Delete(url string, userID int) error {
+	return (*r.short).DeleteLink(r.context, url, userID)
 }

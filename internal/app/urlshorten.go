@@ -26,7 +26,7 @@ type URLShortenServiceMethods interface {
 	GetFullURL(ctx context.Context, shortenedPostfix string) (string, error)
 	GenerateShortenedURL(ctx context.Context) (string, error)
 	MatchesGeneratedURLFormat(s string) bool
-	DeleteLink(ctx context.Context, shortenedURL string) error
+	DeleteLink(ctx context.Context, shortenedURL string, userID int) error
 	//DeleteLink(ctx context.Context, shortenedURL string, userID int) error
 }
 
@@ -114,6 +114,6 @@ func (u URLShortenService) GetAllUserURLS(ctx context.Context, userID int) ([]st
 	return records, nil
 }
 
-func (u URLShortenService) DeleteLink(ctx context.Context, shortenedURL string) error {
-	return u.Storage.DeleteURL(ctx, shortenedURL)
+func (u URLShortenService) DeleteLink(ctx context.Context, shortenedURL string, userID int) error {
+	return u.Storage.DeleteURL(ctx, shortenedURL, userID)
 }

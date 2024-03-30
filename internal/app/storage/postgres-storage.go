@@ -139,9 +139,10 @@ func (s PostgresStorage) GetNewUserID(ctx context.Context) (int, error) {
 
 }
 
-func (s PostgresStorage) DeleteURL(ctx context.Context, shortenedURL string) error {
+func (s PostgresStorage) DeleteURL(ctx context.Context, shortenedURL string, userID int) error {
 	url, _ := helpers.ShortKeyToURL(shortenedURL)
-	r, err := s.connPool.Exec(ctx, "update url_mapping set deleted = TRUE where shorturl = $1", url)
+	r, err := s.connPool.Exec(ctx, "update url_mapping set deleted = TRUE where shorturl = $1 and userid = $2",
+		url, userID)
 	if err != nil {
 		return err
 	}
