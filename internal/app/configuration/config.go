@@ -64,6 +64,9 @@ func getCmdOptions() Options {
 	flag.StringVar(&opt.DBConnectionString, "d",
 		"",
 		"Postgres database connection string")
+	flag.StringVar(&opt.DBConnectionString, "d",
+		"",
+		"Postgres database connection string")
 	flag.Parse()
 	return opt
 }

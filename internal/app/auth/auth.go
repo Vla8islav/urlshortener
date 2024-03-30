@@ -25,7 +25,7 @@ type Claims struct {
 	UserID int
 }
 
-const TokenExp = time.Hour * 3
+const TokenExp = time.Hour * 24 * 365
 const SecretKey = "supersecretkey" // TODO: move to database
 
 func GetBearerFromBearerHeader(bearerHeader string) string {
