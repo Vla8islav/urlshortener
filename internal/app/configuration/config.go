@@ -11,6 +11,7 @@ type Options struct {
 	ShortenerBaseURL   string `env:"BASE_URL"`
 	FileStoragePath    string `env:"FILE_STORAGE_PATH"`
 	DBConnectionString string `env:"DATABASE_DSN"`
+	SecretKey          string `env:"SECRET_KEY"`
 }
 
 var instance *Options
@@ -45,6 +46,10 @@ func mergeOptions(mergeInto *Options, newValues Options) {
 	if mergeInto.DBConnectionString == "" && newValues.DBConnectionString != "" {
 		mergeInto.DBConnectionString = newValues.DBConnectionString
 	}
+
+	if mergeInto.SecretKey == "" && newValues.SecretKey != "" {
+		mergeInto.SecretKey = newValues.SecretKey
+	}
 }
 
 func getEnvOptions() Options {
@@ -64,9 +69,9 @@ func getCmdOptions() Options {
 	flag.StringVar(&opt.DBConnectionString, "d",
 		"",
 		"Postgres database connection string")
-	flag.StringVar(&opt.DBConnectionString, "d",
-		"",
-		"Postgres database connection string")
+	flag.StringVar(&opt.SecretKey, "s",
+		"supersecretkey",
+		"Secret key for data encryption")
 	flag.Parse()
 	return opt
 }

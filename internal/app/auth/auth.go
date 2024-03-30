@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"github.com/Vla8islav/urlshortener/internal/app/configuration"
 	"github.com/golang-jwt/jwt/v4"
 	"strings"
 	"time"
@@ -26,7 +27,6 @@ type Claims struct {
 }
 
 const TokenExp = time.Hour * 24 * 365
-const SecretKey = "supersecretkey" // TODO: move to database
 
 func GetBearerFromBearerHeader(bearerHeader string) string {
 	return strings.Replace(bearerHeader, "Bearer ", "", 1)
@@ -39,7 +39,7 @@ func GetUserID(tokenString string) (int, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 			}
-			return []byte(SecretKey), nil
+			return []byte(configuration.ReadFlags().SecretKey), nil
 		})
 	if err != nil {
 		return -1, err
@@ -65,7 +65,7 @@ func BuildJWTString(userID int) (string, error) {
 	})
 
 	// создаём строку токена
-	tokenString, err := token.SignedString([]byte(SecretKey))
+	tokenString, err := token.SignedString([]byte(configuration.ReadFlags().SecretKey))
 	if err != nil {
 		return "", err
 	}
