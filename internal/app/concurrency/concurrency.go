@@ -50,7 +50,7 @@ func (w *Worker) Loop() {
 	for {
 		t := w.queue.PopWait()
 
-		err := w.deleter.Delete(t.URL)
+		err := w.deleter.Delete(t.URL, t.UserID)
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
 			continue
