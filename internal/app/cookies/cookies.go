@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func SetUserCookie(next http.Handler, storage *storage.Storage) http.HandlerFunc {
+func SetUserCookie(storage *storage.Storage, next http.Handler) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		// по умолчанию устанавливаем оригинальный http.ResponseWriter как тот,
