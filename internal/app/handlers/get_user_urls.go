@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/concurrency"
@@ -17,14 +18,15 @@ func UserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 
 	return func(res http.ResponseWriter, req *http.Request) {
 
-		authBearerStr := req.Header.Get("Authorization")
-		if authBearerStr == "" {
+		cookieName := "userid"
+		existingCookie, err := req.Cookie(cookieName)
+		if errors.Is(err, http.ErrNoCookie) {
 			http.Error(res, "Needs Authorization header with JWT bearer to function",
 				http.StatusUnauthorized)
 			return
 		}
-		bearerStr := auth.GetBearerFromBearerHeader(authBearerStr)
-		userID, err := auth.GetUserID(bearerStr)
+
+		userID, err := auth.GetUserID(existingCookie.Value)
 		if err != nil {
 			http.Error(res, "Couldn't get user id from bearer",
 				http.StatusBadRequest)
