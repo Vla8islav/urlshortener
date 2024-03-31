@@ -28,17 +28,17 @@ func SetUserCookie(storage *storage.Storage, next http.Handler) http.HandlerFunc
 		cookieName := "userid"
 		existingCookie, err := r.Cookie(cookieName)
 		if errors.Is(err, http.ErrNoCookie) {
+			userID, err = (*storage).GetNewUserID(r.Context())
+			if err != nil {
+				panic("Couldn't create a new user" + err.Error())
+			}
+		} else {
 			cookieValue := existingCookie.Value
 			userID, err = auth.GetUserID(cookieValue)
 			if err != nil {
 				http.Error(w, "Needs Authorization header with a correct JWT bearer to function",
 					http.StatusUnauthorized)
 				return
-			}
-		} else {
-			userID, err = (*storage).GetNewUserID(r.Context())
-			if err != nil {
-				panic("Couldn't create a new user" + err.Error())
 			}
 		}
 
