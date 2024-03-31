@@ -18,19 +18,34 @@ func UserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 
 	return func(res http.ResponseWriter, req *http.Request) {
 
-		cookieName := "userid"
-		existingCookie, err := req.Cookie(cookieName)
-		if errors.Is(err, http.ErrNoCookie) {
-			http.Error(res, "Needs Authorization header with JWT bearer to function",
-				http.StatusUnauthorized)
-			return
-		}
+		var userID int
+		var err error
 
-		userID, err := auth.GetUserID(existingCookie.Value)
-		if err != nil {
-			http.Error(res, "Couldn't get user id from bearer",
-				http.StatusBadRequest)
-			return
+		bearerHeader := req.Header.Get("Authorization")
+		if bearerHeader != "" {
+			bearer := auth.GetBearerFromBearerHeader(bearerHeader)
+			userID, err = auth.GetUserID(bearer)
+			if err != nil {
+				http.Error(res, "Needs Authorization header with JWT bearer to function",
+					http.StatusUnauthorized)
+				return
+
+			}
+		} else {
+			cookieName := "userid"
+			existingCookie, err := req.Cookie(cookieName)
+			if errors.Is(err, http.ErrNoCookie) {
+				http.Error(res, "Needs Authorization cookie with JWT bearer to function",
+					http.StatusUnauthorized)
+				return
+			}
+
+			userID, err = auth.GetUserID(existingCookie.Value)
+			if err != nil {
+				http.Error(res, "Couldn't get user id from bearer",
+					http.StatusBadRequest)
+				return
+			}
 		}
 
 		switch req.Method {

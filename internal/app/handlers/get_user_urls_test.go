@@ -47,9 +47,8 @@ func TestGetUserURLSHandler(t *testing.T) {
 
 				validRequest := httptest.NewRequest(http.MethodGet, u.Path, nil)
 				validRequest.Header = http.Header{
-					"Content-Type":  []string{"text/plain"},
-					"Authorization": []string{"Bearer " + randomLinkBearer},
-					"Cookie":        []string{"userid=" + randomLinkBearer},
+					"Content-Type": []string{"text/plain"},
+					"Cookie":       []string{"userid=" + randomLinkBearer},
 				}
 				return validRequest
 
@@ -68,9 +67,8 @@ func TestGetUserURLSHandler(t *testing.T) {
 
 				validRequest := httptest.NewRequest(http.MethodDelete, "/", bodyReaderJSON)
 				validRequest.Header = http.Header{
-					"Content-Type":  []string{"text/plain"},
-					"Authorization": []string{"Bearer " + randomLinkBearer},
-					"Cookie":        []string{"userid=" + randomLinkBearer},
+					"Content-Type": []string{"text/plain"},
+					"Cookie":       []string{"userid=" + randomLinkBearer},
 				}
 				return validRequest
 
