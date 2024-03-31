@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
@@ -8,11 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 )
 
-func TestGetUserURLSHandler(t *testing.T) {
+func TestDeleteUserURLSHandler(t *testing.T) {
 	ctx, cancel := helpers.GetDefaultContext()
 	defer cancel()
 
@@ -36,14 +37,16 @@ func TestGetUserURLSHandler(t *testing.T) {
 		want    expectedResult
 	}{
 		{
-			name: "Successful link generation",
+			name: "Successful deletion",
 			request: func() *http.Request {
-				u, err := url.Parse(randomShortenedURL)
+				body := []string{helpers.URLToShortKey(randomShortenedURL)}
+				bodyJSON, err := json.Marshal(body)
 				if err != nil {
-					panic(err)
+					panic("Couldn't do a deletion test")
 				}
+				bodyReaderJSON := bytes.NewReader(bodyJSON)
 
-				validRequest := httptest.NewRequest(http.MethodGet, u.Path, nil)
+				validRequest := httptest.NewRequest(http.MethodDelete, "/", bodyReaderJSON)
 				validRequest.Header = http.Header{
 					"Content-Type": []string{"text/plain"},
 					"Cookie":       []string{"userid=" + randomLinkBearer},
@@ -51,7 +54,7 @@ func TestGetUserURLSHandler(t *testing.T) {
 				return validRequest
 
 			},
-			want: expectedResult{code: http.StatusOK},
+			want: expectedResult{code: http.StatusAccepted},
 		},
 	}
 
@@ -60,7 +63,7 @@ func TestGetUserURLSHandler(t *testing.T) {
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 
-			GetUserURLSHandler(short)(w, testData.request())
+			DeleteUserURLSHandler(short)(w, testData.request())
 
 			res := w.Result()
 			// получаем и проверяем тело запроса
