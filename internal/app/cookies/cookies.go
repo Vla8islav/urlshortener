@@ -2,6 +2,7 @@ package cookies
 
 import (
 	"errors"
+	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
 	"github.com/Vla8islav/urlshortener/internal/app/storage"
@@ -26,7 +27,7 @@ func SetUserCookie(storage *storage.Storage, next http.Handler) http.HandlerFunc
 		var userID int
 		cookieName := "userid"
 		existingCookie, err := r.Cookie(cookieName)
-		if !errors.As(err, &http.ErrNoCookie) {
+		if errors.Is(err, http.ErrNoCookie) {
 			cookieValue := existingCookie.Value
 			userID, err = auth.GetUserID(cookieValue)
 			if err != nil {
@@ -43,7 +44,7 @@ func SetUserCookie(storage *storage.Storage, next http.Handler) http.HandlerFunc
 
 		cookieValue, err := auth.BuildJWTString(userID)
 		if err != nil {
-			panic("Couldn't build a token string out of user " + string(userID) + err.Error())
+			panic(fmt.Sprintf("Couldn't build a token string out of user %d %s", userID, err.Error()))
 		}
 
 		cookie := http.Cookie{Name: cookieName,
