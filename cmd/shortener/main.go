@@ -62,7 +62,11 @@ func main() {
 	r.HandleFunc("/api/user/urls", logging.WithLogging(sugaredLogger,
 		compression.GzipHandle(
 			cookies.SetUserCookie(&s,
-				handlers.UserURLSHandler(short)))))
+				handlers.GetUserURLSHandler(short))))).Methods("GET")
+	r.HandleFunc("/api/user/urls", logging.WithLogging(sugaredLogger,
+		compression.GzipHandle(
+			cookies.SetUserCookie(&s,
+				handlers.DeleteUserURLSHandler(short))))).Methods("DELETE")
 
 	err = http.ListenAndServe(configuration.ReadFlags().ServerAddress, r)
 	if err != nil {

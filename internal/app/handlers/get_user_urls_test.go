@@ -82,7 +82,7 @@ func TestGetUserURLSHandler(t *testing.T) {
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 
-			UserURLSHandler(short)(w, testData.request())
+			GetUserURLSHandler(short)(w, testData.request())
 
 			res := w.Result()
 			// получаем и проверяем тело запроса

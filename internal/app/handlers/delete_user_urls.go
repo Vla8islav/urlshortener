@@ -1,22 +1,25 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
+	"github.com/Vla8islav/urlshortener/internal/app/concurrency"
+	"io"
 	"net/http"
 )
 
-func GetUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
+func DeleteUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 	if short == nil {
 		panic("Service wasn't initialised")
 	}
 
 	return func(res http.ResponseWriter, req *http.Request) {
 
-		if req.Method != http.MethodGet {
-			http.Error(res, "Get user urls routing failue. Expected GET, got "+req.Method,
+		if req.Method != http.MethodDelete {
+			http.Error(res, "Delete url user routing failue. Expected DELETE, got "+req.Method,
 				http.StatusInternalServerError)
 			return
 
@@ -52,24 +55,32 @@ func GetUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			}
 		}
 
-		urls, err := short.GetAllUserURLS(req.Context(), userID)
+		buffer, err := io.ReadAll(req.Body)
 		if err != nil {
-			http.Error(res, "Failed to get all user urls "+err.Error(),
+			http.Error(res, "Couldn't read DELETE request body "+err.Error(),
 				http.StatusInternalServerError)
 			return
 		}
 
-		responseBuffer, err := json.Marshal(urls)
-
+		var urls []string
+		err = json.Unmarshal(buffer, &urls)
 		if err != nil {
-			http.Error(res, "Failed to pack short url into json "+err.Error(),
+			http.Error(res, "Incorrect format of the DELETE request body "+err.Error(),
 				http.StatusInternalServerError)
 			return
 		}
 
-		res.Header().Add("Content-Type", "application/json")
-		res.WriteHeader(http.StatusOK)
-		res.Write(responseBuffer)
+		queue := concurrency.NewQueue()
+
+		for i := 0; i < len(urls); i++ {
+			w := concurrency.NewWorker(i, queue, concurrency.NewDeleter(&short, context.Background()))
+			go w.Loop()
+		}
+
+		for _, url := range urls {
+			queue.Push(&concurrency.Task{URL: url, UserID: userID})
+		}
+		res.WriteHeader(http.StatusAccepted)
 
 	}
 }
