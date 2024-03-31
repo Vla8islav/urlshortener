@@ -50,7 +50,7 @@ func SetUserCookie(storage *storage.Storage, next http.Handler) http.HandlerFunc
 		cookie := http.Cookie{Name: cookieName,
 			Value:      cookieValue,
 			Path:       "/",
-			Domain:     "http://" + u.Host,
+			Domain:     u.Hostname(),
 			Expires:    expire,
 			RawExpires: expire.Format(time.UnixDate),
 			MaxAge:     365 * 24 * 60 * 60,
