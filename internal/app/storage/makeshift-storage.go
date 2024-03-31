@@ -44,7 +44,10 @@ func loadDataFromFile(ctx context.Context, filename string, s Storage) error {
 			return err
 		}
 		fmt.Println(data)
-		s.AddURLPairInMemory(ctx, configuration.ReadFlags().ShortenerBaseURL+"/"+data.ShortURL, data.OriginalURL, data.UUID, auth.DefaultUserID)
+		s.AddURLPairInMemory(ctx,
+			configuration.ReadFlags().ShortenerBaseURL+"/"+data.ShortURL,
+			data.OriginalURL, data.UUID,
+			auth.DefaultUserID)
 
 	}
 	return nil

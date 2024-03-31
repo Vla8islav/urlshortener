@@ -4,6 +4,7 @@ import (
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/compression"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
+	"github.com/Vla8islav/urlshortener/internal/app/cookies"
 	"github.com/Vla8islav/urlshortener/internal/app/handlers"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"github.com/Vla8islav/urlshortener/internal/app/logging"
@@ -38,7 +39,11 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.RootPageHandler(short))))
-	r.HandleFunc("/ping", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.PingHandler(&s))))
+	r.HandleFunc("/ping",
+		logging.WithLogging(sugaredLogger,
+			compression.GzipHandle(
+				cookies.SetUserCookie(
+					handlers.PingHandler(&s), &s))))
 	r.HandleFunc("/{slug:[A-Za-z]+}", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.ExpandHandler(short))))
 	r.HandleFunc("/api/shorten", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.RootPageJSONHandler(short))))
 	r.HandleFunc("/api/shorten/batch", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.RootPageJSONBatchHandler(short))))

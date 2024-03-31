@@ -27,6 +27,7 @@ type URLShortenServiceMethods interface {
 	GenerateShortenedURL(ctx context.Context) (string, error)
 	MatchesGeneratedURLFormat(s string) bool
 	DeleteLink(ctx context.Context, shortenedURL string, userID int) error
+
 	//DeleteLink(ctx context.Context, shortenedURL string, userID int) error
 }
 
