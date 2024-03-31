@@ -51,7 +51,7 @@ func SetUserCookie(storage *storage.Storage, next http.Handler) http.HandlerFunc
 				Raw:        cookieName + "=" + cookieValue,
 				Unparsed:   []string{cookieName + "=" + cookieValue}}
 			http.SetCookie(w, &cookie)
-			r.AddCookie(&cookie)
+			//r.AddCookie(&cookie)
 		}
 
 		// передаём управление хендлеру

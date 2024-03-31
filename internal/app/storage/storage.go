@@ -8,6 +8,7 @@ import (
 type URLPair struct {
 	ShortURL string `json:"short_url"`
 	FullURL  string `json:"original_url"`
+	Deleted  bool   `json:"deleted"`
 }
 
 type Storage interface {

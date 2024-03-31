@@ -112,7 +112,13 @@ func (u URLShortenService) GetAllUserURLS(ctx context.Context, userID int) ([]st
 	if err != nil {
 		return nil, err
 	}
-	return records, nil
+	retval := []storage.URLPair{}
+	for _, record := range records {
+		if !record.Deleted {
+			retval = append(retval, record)
+		}
+	}
+	return retval, nil
 }
 
 func (u URLShortenService) DeleteLink(ctx context.Context, shortenedURL string, userID int) error {
