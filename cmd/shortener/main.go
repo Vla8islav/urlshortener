@@ -38,16 +38,26 @@ func main() {
 	sugaredLogger := *logger.Sugar()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.RootPageHandler(short))))
+	r.HandleFunc("/", logging.WithLogging(sugaredLogger,
+		compression.GzipHandle(
+			handlers.RootPageHandler(short))))
 	r.HandleFunc("/ping",
 		logging.WithLogging(sugaredLogger,
 			compression.GzipHandle(
 				cookies.SetUserCookie(
 					handlers.PingHandler(&s), &s))))
-	r.HandleFunc("/{slug:[A-Za-z]+}", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.ExpandHandler(short))))
-	r.HandleFunc("/api/shorten", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.RootPageJSONHandler(short))))
-	r.HandleFunc("/api/shorten/batch", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.RootPageJSONBatchHandler(short))))
-	r.HandleFunc("/api/user/urls", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.UserURLSHandler(short))))
+	r.HandleFunc("/{slug:[A-Za-z]+}", logging.WithLogging(sugaredLogger,
+		compression.GzipHandle(
+			handlers.ExpandHandler(short))))
+	r.HandleFunc("/api/shorten", logging.WithLogging(sugaredLogger,
+		compression.GzipHandle(
+			handlers.RootPageJSONHandler(short))))
+	r.HandleFunc("/api/shorten/batch", logging.WithLogging(sugaredLogger,
+		compression.GzipHandle(
+			handlers.RootPageJSONBatchHandler(short))))
+	r.HandleFunc("/api/user/urls", logging.WithLogging(sugaredLogger,
+		compression.GzipHandle(
+			handlers.UserURLSHandler(short))))
 
 	err = http.ListenAndServe(configuration.ReadFlags().ServerAddress, r)
 	if err != nil {
