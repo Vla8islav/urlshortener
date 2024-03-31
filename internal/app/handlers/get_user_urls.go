@@ -35,7 +35,7 @@ func UserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			cookieName := "userid"
 			existingCookie, err := req.Cookie(cookieName)
 			if errors.Is(err, http.ErrNoCookie) {
-				http.Error(res, "Needs Authorization cookie with JWT bearer to function",
+				http.Error(res, "needs Authorization cookie with JWT bearer to function "+err.Error(),
 					http.StatusUnauthorized)
 				return
 			}

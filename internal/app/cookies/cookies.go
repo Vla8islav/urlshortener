@@ -26,40 +26,33 @@ func SetUserCookie(storage *storage.Storage, next http.Handler) http.HandlerFunc
 
 		var userID int
 		cookieName := "userid"
-		existingCookie, err := r.Cookie(cookieName)
+		_, err = r.Cookie(cookieName)
 		if errors.Is(err, http.ErrNoCookie) {
 			userID, err = (*storage).GetNewUserID(r.Context())
 			if err != nil {
 				panic("Couldn't create a new user" + err.Error())
 			}
-		} else {
-			cookieValue := existingCookie.Value
-			userID, err = auth.GetUserID(cookieValue)
+
+			cookieValue, err := auth.BuildJWTString(userID)
 			if err != nil {
-				http.Error(w, "Needs Authorization header with a correct JWT bearer to function",
-					http.StatusUnauthorized)
-				return
+				panic(fmt.Sprintf("Couldn't build a token string out of user %d %s", userID, err.Error()))
 			}
-		}
 
-		cookieValue, err := auth.BuildJWTString(userID)
-		if err != nil {
-			panic(fmt.Sprintf("Couldn't build a token string out of user %d %s", userID, err.Error()))
+			cookie := http.Cookie{Name: cookieName,
+				Value:      cookieValue,
+				Path:       "/",
+				Domain:     u.Hostname(),
+				Expires:    expire,
+				RawExpires: expire.Format(time.UnixDate),
+				MaxAge:     365 * 24 * 60 * 60,
+				Secure:     true,
+				HttpOnly:   true,
+				SameSite:   http.SameSiteDefaultMode,
+				Raw:        cookieName + "=" + cookieValue,
+				Unparsed:   []string{cookieName + "=" + cookieValue}}
+			http.SetCookie(w, &cookie)
+			r.AddCookie(&cookie)
 		}
-
-		cookie := http.Cookie{Name: cookieName,
-			Value:      cookieValue,
-			Path:       "/",
-			Domain:     u.Hostname(),
-			Expires:    expire,
-			RawExpires: expire.Format(time.UnixDate),
-			MaxAge:     365 * 24 * 60 * 60,
-			Secure:     true,
-			HttpOnly:   true,
-			SameSite:   http.SameSiteDefaultMode,
-			Raw:        cookieName + "=" + cookieValue,
-			Unparsed:   []string{cookieName + "=" + cookieValue}}
-		http.SetCookie(w, &cookie)
 
 		// передаём управление хендлеру
 		next.ServeHTTP(w, r)

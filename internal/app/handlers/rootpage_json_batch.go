@@ -56,7 +56,12 @@ func RootPageJSONBatchHandler(short app.URLShortenServiceMethods) http.HandlerFu
 				return
 			}
 
-			authBearerStr := req.Header.Get("Authorization")
+			authBearerStr := ""
+			authBearerCookie, err := req.Cookie("userid")
+			if err == nil {
+				authBearerStr = authBearerCookie.Value
+			}
+
 			shortenedURL, _, _ := short.GetShortenedURL(req.Context(), record.OriginalURL, authBearerStr)
 
 			responseStruct = append(responseStruct, URLShortenResponse{
