@@ -49,6 +49,7 @@ func TestGetUserURLSHandler(t *testing.T) {
 				validRequest.Header = http.Header{
 					"Content-Type":  []string{"text/plain"},
 					"Authorization": []string{"Bearer " + randomLinkBearer},
+					"Cookie":        []string{"userid=" + randomLinkBearer},
 				}
 				return validRequest
 
@@ -69,6 +70,7 @@ func TestGetUserURLSHandler(t *testing.T) {
 				validRequest.Header = http.Header{
 					"Content-Type":  []string{"text/plain"},
 					"Authorization": []string{"Bearer " + randomLinkBearer},
+					"Cookie":        []string{"userid=" + randomLinkBearer},
 				}
 				return validRequest
 
