@@ -8,6 +8,7 @@ import (
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"io"
 	"net/http"
+	"strings"
 )
 
 func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
@@ -51,8 +52,16 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		authBearerStr := req.Header.Get("Authorization")
-		shortenedURL, userID, shortURLError := short.GetShortenedURL(req.Context(), requestStruct.URL, authBearerStr)
+		authBearerStr := strings.TrimPrefix(res.Header().Get("Set-Cookie"), "userid=")
+		authBearerStrSplit := strings.Split(authBearerStr, ";")[0]
+		userIDCookie, err := req.Cookie("userid")
+		if err == nil {
+			if userIDCookie.Value != "" {
+				authBearerStrSplit = userIDCookie.Value
+			}
+		}
+
+		shortenedURL, userID, shortURLError := short.GetShortenedURL(req.Context(), requestStruct.URL, authBearerStrSplit)
 
 		returnStatus := http.StatusCreated
 

@@ -26,7 +26,7 @@ type Claims struct {
 	UserID int
 }
 
-const TokenExp = time.Hour * 24 * 365
+const TokenExp = time.Hour * 24
 
 func GetBearerFromBearerHeader(bearerHeader string) string {
 	return strings.Replace(bearerHeader, "Bearer ", "", 1)

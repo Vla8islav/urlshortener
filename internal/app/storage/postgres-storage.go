@@ -10,6 +10,7 @@ import (
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"strconv"
 )
 
 const urlMappingTableName = "url_mapping"
@@ -147,7 +148,7 @@ func (s PostgresStorage) DeleteURL(ctx context.Context, shortenedURL string, use
 		return err
 	}
 	if r.RowsAffected() == 0 {
-		return errors.New("couldn't find a requested URL " + url)
+		return errors.New("couldn't find a requested URL " + url + "with user id " + strconv.Itoa(userID))
 	}
 	return err
 
