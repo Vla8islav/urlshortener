@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
 	"github.com/golang-jwt/jwt/v4"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -72,4 +73,16 @@ func BuildJWTString(userID int) (string, error) {
 
 	// возвращаем строку токена
 	return tokenString, nil
+}
+
+func GetBearerNewOrOld(res http.ResponseWriter, req *http.Request) string {
+	authBearerCookieKeyValue := strings.TrimPrefix(res.Header().Get("Set-Cookie"), "userid=")
+	authBearerStr := strings.Split(authBearerCookieKeyValue, ";")[0]
+	userIDCookie, err := req.Cookie("userid")
+	if err == nil {
+		if userIDCookie.Value != "" {
+			authBearerStr = userIDCookie.Value
+		}
+	}
+	return authBearerStr
 }

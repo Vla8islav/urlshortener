@@ -8,7 +8,6 @@ import (
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"io"
 	"net/http"
-	"strings"
 )
 
 func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
@@ -52,16 +51,9 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		authBearerStr := strings.TrimPrefix(res.Header().Get("Set-Cookie"), "userid=")
-		authBearerStrSplit := strings.Split(authBearerStr, ";")[0]
-		userIDCookie, err := req.Cookie("userid")
-		if err == nil {
-			if userIDCookie.Value != "" {
-				authBearerStrSplit = userIDCookie.Value
-			}
-		}
+		authBearerStr := auth.GetBearerNewOrOld(res, req)
 
-		shortenedURL, userID, shortURLError := short.GetShortenedURL(req.Context(), requestStruct.URL, authBearerStrSplit)
+		shortenedURL, _, shortURLError := short.GetShortenedURL(req.Context(), requestStruct.URL, authBearerStr)
 
 		returnStatus := http.StatusCreated
 
@@ -69,13 +61,6 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 		if errors.As(shortURLError, &urlAlreadyExist) {
 			returnStatus = http.StatusConflict
 		}
-
-		jwtString, err := auth.BuildJWTString(userID)
-		if err != nil {
-			http.Error(res, "Failed to build jwt string", http.StatusInternalServerError)
-			return
-		}
-		res.Header().Add("Authorization", "Bearer "+jwtString)
 
 		type URLShortenResponse struct {
 			Result string `json:"result"`

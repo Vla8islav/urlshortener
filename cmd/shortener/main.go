@@ -45,12 +45,12 @@ func main() {
 	r.HandleFunc("/ping",
 		logging.WithLogging(sugaredLogger,
 			compression.GzipHandle(
-				cookies.SetUserCookie(&s,
-					handlers.PingHandler(&s)))))
+				handlers.PingHandler(&s))))
+
 	r.HandleFunc("/{slug:[A-Za-z]+}", logging.WithLogging(sugaredLogger,
 		compression.GzipHandle(
-			cookies.SetUserCookie(&s,
-				handlers.ExpandHandler(short)))))
+			handlers.ExpandHandler(short))))
+
 	r.HandleFunc("/api/shorten", logging.WithLogging(sugaredLogger,
 		compression.GzipHandle(
 			cookies.SetUserCookie(&s,
@@ -59,14 +59,13 @@ func main() {
 		compression.GzipHandle(
 			cookies.SetUserCookie(&s,
 				handlers.RootPageJSONBatchHandler(short)))))
+
 	r.HandleFunc("/api/user/urls", logging.WithLogging(sugaredLogger,
 		compression.GzipHandle(
-			cookies.SetUserCookie(&s,
-				handlers.GetUserURLSHandler(short))))).Methods("GET")
+			handlers.GetUserURLSHandler(short)))).Methods("GET")
 	r.HandleFunc("/api/user/urls", logging.WithLogging(sugaredLogger,
 		compression.GzipHandle(
-			cookies.SetUserCookie(&s,
-				handlers.DeleteUserURLSHandler(short))))).Methods("DELETE")
+			handlers.DeleteUserURLSHandler(short)))).Methods("DELETE")
 
 	err = http.ListenAndServe(configuration.ReadFlags().ServerAddress, r)
 	if err != nil {

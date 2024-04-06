@@ -41,15 +41,9 @@ func RootPageHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		authBearerStr := req.Header.Get("Authorization")
-		shortenedURL, userID, shortURLError := short.GetShortenedURL(req.Context(), bodyString, authBearerStr)
+		authBearerStr := auth.GetBearerNewOrOld(res, req)
 
-		jwtString, err := auth.BuildJWTString(userID)
-		if err != nil {
-			http.Error(res, "Failed to build jwt string", http.StatusInternalServerError)
-			return
-		}
-		res.Header().Add("Authorization", "Bearer "+jwtString)
+		shortenedURL, _, shortURLError := short.GetShortenedURL(req.Context(), bodyString, authBearerStr)
 
 		returnStatus := http.StatusCreated
 		var urlAlreadyExist *app.URLExistError
