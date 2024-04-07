@@ -21,7 +21,6 @@ func DeleteUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc 
 			http.Error(res, "Delete url user routing failue. Expected DELETE, got "+req.Method,
 				http.StatusInternalServerError)
 			return
-
 		}
 
 		var userID int

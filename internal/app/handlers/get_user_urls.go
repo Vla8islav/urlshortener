@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"net/http"
@@ -24,7 +25,23 @@ func GetUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 		var userID int
 		var err error
 
-		bearer := auth.GetBearerNewOrOld(res, req)
+		var bearer string
+		userIDCookie, err := req.Cookie("userid")
+		res.Header().Add("Content-Type", "application/json")
+
+		if err == nil {
+			if userIDCookie.Value != "" {
+				bearer = userIDCookie.Value
+			}
+		} else if errors.Is(err, http.ErrNoCookie) {
+			http.Error(res, "couldn't find bearer in cookies",
+				http.StatusUnauthorized)
+			return
+		} else {
+			http.Error(res, "something went wrong while reading a cookie",
+				http.StatusInternalServerError)
+			return
+		}
 
 		userID, err = auth.GetUserID(bearer)
 		if err != nil {
