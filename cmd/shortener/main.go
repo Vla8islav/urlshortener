@@ -38,10 +38,12 @@ func main() {
 	sugaredLogger := *logger.Sugar()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", logging.WithLogging(sugaredLogger,
+	r.HandleFunc("/",
 		compression.GzipHandle(
-			cookies.SetUserCookie(&s,
-				handlers.RootPageHandler(short)))))
+			logging.WithLogging(sugaredLogger,
+				cookies.SetUserCookie(&s,
+					handlers.RootPageHandler(short)))))
+
 	r.HandleFunc("/ping",
 		logging.WithLogging(sugaredLogger,
 			compression.GzipHandle(
@@ -60,10 +62,11 @@ func main() {
 			cookies.SetUserCookie(&s,
 				handlers.RootPageJSONBatchHandler(short)))))
 
-	r.HandleFunc("/api/user/urls", logging.WithLogging(sugaredLogger,
+	r.HandleFunc("/api/user/urls",
 		compression.GzipHandle(
-			cookies.SetUserCookie(&s,
-				handlers.GetUserURLSHandler(short))))).Methods("GET")
+			logging.WithLogging(sugaredLogger,
+				cookies.SetUserCookie(&s,
+					handlers.GetUserURLSHandler(short))))).Methods("GET")
 	r.HandleFunc("/api/user/urls", logging.WithLogging(sugaredLogger,
 		compression.GzipHandle(
 			cookies.SetUserCookie(&s,

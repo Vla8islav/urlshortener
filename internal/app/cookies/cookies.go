@@ -8,7 +8,6 @@ import (
 	"github.com/Vla8islav/urlshortener/internal/app/storage"
 	"net/http"
 	"net/url"
-	"time"
 )
 
 func SetUserCookie(storage *storage.Storage, next http.Handler) http.HandlerFunc {
@@ -17,9 +16,8 @@ func SetUserCookie(storage *storage.Storage, next http.Handler) http.HandlerFunc
 		// по умолчанию устанавливаем оригинальный http.ResponseWriter как тот,
 		// который будем передавать следующей функции
 
-		expire := time.Now().AddDate(1, 0, 0)
 		baseURL := configuration.ReadFlags().ShortenerBaseURL
-		u, err := url.Parse(baseURL)
+		_, err := url.Parse(baseURL)
 		if err != nil {
 			panic("Base URL isn't parsable url " + baseURL + err.Error())
 		}
@@ -39,19 +37,13 @@ func SetUserCookie(storage *storage.Storage, next http.Handler) http.HandlerFunc
 			}
 
 			cookie := http.Cookie{Name: cookieName,
-				Value:      cookieValue,
-				Path:       "/",
-				Domain:     u.Hostname(),
-				Expires:    expire,
-				RawExpires: expire.Format(time.UnixDate),
-				MaxAge:     365 * 24 * 60 * 60,
-				Secure:     true,
-				HttpOnly:   true,
-				SameSite:   http.SameSiteDefaultMode,
-				Raw:        cookieName + "=" + cookieValue,
-				Unparsed:   []string{cookieName + "=" + cookieValue}}
+				Value: cookieValue,
+			}
 			http.SetCookie(w, &cookie)
-			//r.AddCookie(&cookie)
+
+			//w.Header().Set("Authorization", cookieValue)
+		} else {
+			//w.Header().Set("Authorization", userIDCookie.Value)
 		}
 
 		// передаём управление хендлеру

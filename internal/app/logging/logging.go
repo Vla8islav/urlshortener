@@ -14,6 +14,7 @@ type (
 		body                  []byte
 		contentTypeHeader     string
 		contentEncodingHeader string
+		authorizationHeader   string
 		cookies               string
 	}
 
@@ -31,7 +32,8 @@ func (r *loggingResponseWriter) Write(b []byte) (int, error) {
 	r.responseData.body = b
 	r.responseData.contentTypeHeader = r.Header().Get("Content-Type")
 	r.responseData.contentEncodingHeader = r.Header().Get("Content-Encoding")
-	r.responseData.cookies = r.Header().Get("Cookie")
+	r.responseData.authorizationHeader = r.Header().Get("Authorization")
+	r.responseData.cookies = r.Header().Get("Set-Cookie")
 	return size, err
 }
 
@@ -77,6 +79,7 @@ func WithLogging(sugaredLogger zap.SugaredLogger, h http.HandlerFunc) http.Handl
 			"duration", duration,
 			"status", responseData.status, // получаем перехваченный код статуса ответа
 			"size", responseData.size, // получаем перехваченный размер ответа
+			"authorizationHeader", responseData.authorizationHeader,
 			"Content-Type", responseData.contentTypeHeader,
 			"Content-Encoding", responseData.contentEncodingHeader,
 			"body", string(responseData.body),

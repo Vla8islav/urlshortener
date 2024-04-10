@@ -34,9 +34,16 @@ func GetUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 				bearer = userIDCookie.Value
 			}
 		} else if errors.Is(err, http.ErrNoCookie) {
-			http.Error(res, "couldn't find bearer in cookies",
-				http.StatusUnauthorized)
-			return
+
+			authHeader := req.Header.Get("Authorization")
+			if authHeader == "" {
+				http.Error(res, "couldn't find bearer in cookies",
+					http.StatusUnauthorized)
+				return
+			} else {
+				bearer = authHeader
+			}
+
 		} else {
 			http.Error(res, "something went wrong while reading a cookie",
 				http.StatusInternalServerError)
