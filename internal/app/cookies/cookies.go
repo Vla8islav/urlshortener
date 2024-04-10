@@ -40,10 +40,6 @@ func SetUserCookie(storage *storage.Storage, next http.Handler) http.HandlerFunc
 				Value: cookieValue,
 			}
 			http.SetCookie(w, &cookie)
-
-			//w.Header().Set("Authorization", cookieValue)
-		} else {
-			//w.Header().Set("Authorization", userIDCookie.Value)
 		}
 
 		// передаём управление хендлеру
