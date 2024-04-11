@@ -46,21 +46,26 @@ func main() {
 
 	r.HandleFunc("/ping",
 		logging.WithLogging(sugaredLogger,
-			compression.GzipHandle(
+			cookies.SetUserCookie(&s,
 				handlers.PingHandler(&s))))
 
-	r.HandleFunc("/{slug:[A-Za-z]+}", logging.WithLogging(sugaredLogger,
+	r.HandleFunc("/{slug:[A-Za-z]+}",
 		compression.GzipHandle(
-			handlers.ExpandHandler(short))))
+			logging.WithLogging(sugaredLogger,
+				cookies.SetUserCookie(&s,
+					handlers.ExpandHandler(short)))))
 
-	r.HandleFunc("/api/shorten", logging.WithLogging(sugaredLogger,
+	r.HandleFunc("/api/shorten",
 		compression.GzipHandle(
-			cookies.SetUserCookie(&s,
-				handlers.RootPageJSONHandler(short)))))
-	r.HandleFunc("/api/shorten/batch", logging.WithLogging(sugaredLogger,
+			logging.WithLogging(sugaredLogger,
+				cookies.SetUserCookie(&s,
+					handlers.RootPageJSONHandler(short)))))
+
+	r.HandleFunc("/api/shorten/batch",
 		compression.GzipHandle(
-			cookies.SetUserCookie(&s,
-				handlers.RootPageJSONBatchHandler(short)))))
+			logging.WithLogging(sugaredLogger,
+				cookies.SetUserCookie(&s,
+					handlers.RootPageJSONBatchHandler(short)))))
 
 	r.HandleFunc("/api/user/urls",
 		compression.GzipHandle(
