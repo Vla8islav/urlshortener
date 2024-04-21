@@ -5,7 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
+	"github.com/Vla8islav/urlshortener/internal/app/errcustom"
 	"os"
 	"strings"
 	"sync"
@@ -42,7 +44,10 @@ func loadDataFromFile(ctx context.Context, filename string, s Storage) error {
 			return err
 		}
 		fmt.Println(data)
-		s.AddURLPairInMemory(ctx, configuration.ReadFlags().ShortenerBaseURL+"/"+data.ShortURL, data.OriginalURL, data.UUID)
+		s.AddURLPairInMemory(ctx,
+			configuration.ReadFlags().ShortenerBaseURL+"/"+data.ShortURL,
+			data.OriginalURL, data.UUID,
+			auth.DefaultUserID)
 
 	}
 	return nil
@@ -90,17 +95,17 @@ type MakeshiftStorage struct {
 
 func (s MakeshiftStorage) Close() {}
 
-func (s MakeshiftStorage) AddURLPair(ctx context.Context, shortenedURL string, fullURL string, uuidStr string) {
+func (s MakeshiftStorage) AddURLPair(ctx context.Context, shortenedURL string, fullURL string, uuidStr string, userID int) {
 	if _, found := s.uuidList[uuidStr]; found {
 		return
 	}
-	s.AddURLPairInMemory(ctx, shortenedURL, fullURL, uuidStr)
+	s.AddURLPairInMemory(ctx, shortenedURL, fullURL, uuidStr, userID)
 	writeIntoFile(s.filePath, dataStorageRecord{UUID: uuidStr,
 		ShortURL: strings.TrimPrefix(
 			strings.TrimPrefix(shortenedURL, configuration.ReadFlags().ShortenerBaseURL), "/"), OriginalURL: fullURL})
 }
 
-func (s MakeshiftStorage) AddURLPairInMemory(ctx context.Context, shortenedURL string, fullURL string, uuidStr string) {
+func (s MakeshiftStorage) AddURLPairInMemory(ctx context.Context, shortenedURL string, fullURL string, uuidStr string, userID int) {
 	mu.Lock()
 	defer mu.Unlock()
 	s.urlToShort[fullURL] = shortenedURL
@@ -108,18 +113,22 @@ func (s MakeshiftStorage) AddURLPairInMemory(ctx context.Context, shortenedURL s
 	s.uuidList[uuidStr] = struct{}{}
 }
 
-func (s MakeshiftStorage) GetFullURL(ctx context.Context, shortenedURL string) (string, bool) {
+func (s MakeshiftStorage) GetFullURL(ctx context.Context, shortenedURL string) (string, error) {
 	mu.Lock()
 	defer mu.Unlock()
 	value, exists := s.shortToURL[shortenedURL]
-	return value, exists
+	if exists {
+		return value, nil
+	} else {
+		return value, errcustom.ErrURLNotFound
+	}
 }
 
-func (s MakeshiftStorage) GetShortenedURL(ctx context.Context, fullURL string) (string, bool) {
+func (s MakeshiftStorage) GetShortenedURL(ctx context.Context, fullURL string) (string, int, bool) {
 	mu.Lock()
 	defer mu.Unlock()
 	value, exists := s.urlToShort[fullURL]
-	return value, exists
+	return value, auth.DefaultUserID, exists
 }
 
 func (s MakeshiftStorage) Ping(ctx context.Context) error {
@@ -131,4 +140,16 @@ func (s MakeshiftStorage) Ping(ctx context.Context) error {
 	}
 	defer f.Close()
 	return nil
+}
+
+func (s MakeshiftStorage) GetAllURLRecordsByUser(ctx context.Context, userID int) ([]URLPair, error) {
+	return []URLPair{}, nil // TODO: actually implement
+}
+
+func (s MakeshiftStorage) GetNewUserID(ctx context.Context) (int, error) {
+	return auth.DefaultUserID, nil
+}
+
+func (s MakeshiftStorage) DeleteURL(ctx context.Context, shortenedURL string, userID int) error {
+	return nil // TODO: actually implement
 }

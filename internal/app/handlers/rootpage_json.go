@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/Vla8islav/urlshortener/internal/app"
+	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"io"
 	"net/http"
@@ -50,9 +51,12 @@ func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		shortenedURL, shortURLError := short.GetShortenedURL(req.Context(), requestStruct.URL)
+		authBearerStr := auth.GetBearerNewOrOld(res, req)
+
+		shortenedURL, _, shortURLError := short.GetShortenedURL(req.Context(), requestStruct.URL, authBearerStr)
 
 		returnStatus := http.StatusCreated
+
 		var urlAlreadyExist *app.URLExistError
 		if errors.As(shortURLError, &urlAlreadyExist) {
 			returnStatus = http.StatusConflict

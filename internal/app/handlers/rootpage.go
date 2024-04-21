@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"github.com/Vla8islav/urlshortener/internal/app"
+	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"io"
 	"net/http"
@@ -40,7 +41,9 @@ func RootPageHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
 			return
 		}
 
-		shortenedURL, shortURLError := short.GetShortenedURL(req.Context(), bodyString)
+		authBearerStr := auth.GetBearerNewOrOld(res, req)
+
+		shortenedURL, _, shortURLError := short.GetShortenedURL(req.Context(), bodyString, authBearerStr)
 
 		returnStatus := http.StatusCreated
 		var urlAlreadyExist *app.URLExistError

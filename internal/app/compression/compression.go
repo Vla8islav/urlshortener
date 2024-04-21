@@ -39,28 +39,28 @@ func (c *gzipWriter) Close() error {
 	return c.zw.Close()
 }
 
-type gzipReader struct {
+type GzipReader struct {
 	r  io.ReadCloser
 	zr *gzip.Reader
 }
 
-func newGzipReader(r io.ReadCloser) (*gzipReader, error) {
+func NewGzipReader(r io.ReadCloser) (*GzipReader, error) {
 	zr, err := gzip.NewReader(r)
 	if err != nil {
 		return nil, err
 	}
 
-	return &gzipReader{
+	return &GzipReader{
 		r:  r,
 		zr: zr,
 	}, nil
 }
 
-func (c gzipReader) Read(p []byte) (n int, err error) {
+func (c GzipReader) Read(p []byte) (n int, err error) {
 	return c.zr.Read(p)
 }
 
-func (c *gzipReader) Close() error {
+func (c *GzipReader) Close() error {
 	if err := c.r.Close(); err != nil {
 		return err
 	}
@@ -91,7 +91,7 @@ func GzipHandle(next http.Handler) http.HandlerFunc {
 		sendsGzip := strings.Contains(contentEncoding, "gzip")
 		if sendsGzip {
 			// оборачиваем тело запроса в io.Reader с поддержкой декомпрессии
-			cr, err := newGzipReader(r.Body)
+			cr, err := NewGzipReader(r.Body)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				return

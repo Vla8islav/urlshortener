@@ -4,6 +4,7 @@ import (
 	"github.com/Vla8islav/urlshortener/internal/app"
 	"github.com/Vla8islav/urlshortener/internal/app/compression"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
+	"github.com/Vla8islav/urlshortener/internal/app/cookies"
 	"github.com/Vla8islav/urlshortener/internal/app/handlers"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"github.com/Vla8islav/urlshortener/internal/app/logging"
@@ -37,11 +38,44 @@ func main() {
 	sugaredLogger := *logger.Sugar()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.RootPageHandler(short))))
-	r.HandleFunc("/ping", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.PingHandler(&s))))
-	r.HandleFunc("/{slug:[A-Za-z]+}", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.ExpandHandler(short))))
-	r.HandleFunc("/api/shorten", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.RootPageJSONHandler(short))))
-	r.HandleFunc("/api/shorten/batch", logging.WithLogging(sugaredLogger, compression.GzipHandle(handlers.RootPageJSONBatchHandler(short))))
+	r.HandleFunc("/",
+		compression.GzipHandle(
+			logging.WithLogging(sugaredLogger,
+				cookies.SetUserCookie(&s,
+					handlers.RootPageHandler(short)))))
+
+	r.HandleFunc("/ping",
+		logging.WithLogging(sugaredLogger,
+			cookies.SetUserCookie(&s,
+				handlers.PingHandler(&s))))
+
+	r.HandleFunc("/{slug:[A-Za-z]+}",
+		compression.GzipHandle(
+			logging.WithLogging(sugaredLogger,
+				cookies.SetUserCookie(&s,
+					handlers.ExpandHandler(short)))))
+
+	r.HandleFunc("/api/shorten",
+		compression.GzipHandle(
+			logging.WithLogging(sugaredLogger,
+				cookies.SetUserCookie(&s,
+					handlers.RootPageJSONHandler(short)))))
+
+	r.HandleFunc("/api/shorten/batch",
+		compression.GzipHandle(
+			logging.WithLogging(sugaredLogger,
+				cookies.SetUserCookie(&s,
+					handlers.RootPageJSONBatchHandler(short)))))
+
+	r.HandleFunc("/api/user/urls",
+		compression.GzipHandle(
+			logging.WithLogging(sugaredLogger,
+				cookies.SetUserCookie(&s,
+					handlers.GetUserURLSHandler(short))))).Methods("GET")
+	r.HandleFunc("/api/user/urls", logging.WithLogging(sugaredLogger,
+		compression.GzipHandle(
+			cookies.SetUserCookie(&s,
+				handlers.DeleteUserURLSHandler(short))))).Methods("DELETE")
 
 	err = http.ListenAndServe(configuration.ReadFlags().ServerAddress, r)
 	if err != nil {

@@ -2,7 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/Vla8islav/urlshortener/internal/app"
+	"github.com/Vla8islav/urlshortener/internal/app/auth"
 	"github.com/Vla8islav/urlshortener/internal/app/helpers"
 	"io"
 	"net/http"
@@ -50,18 +53,37 @@ func RootPageJSONBatchHandler(short app.URLShortenServiceMethods) http.HandlerFu
 			ShortURL      string `json:"short_url"`
 		}
 		var responseStruct []URLShortenResponse
+		authBearerStr := ""
 		for _, record := range requestStruct {
 			if !helpers.CheckIfItsURL(record.OriginalURL) {
 				http.Error(res, "Incorrect url format", http.StatusBadRequest)
 				return
 			}
 
-			shortenedURL, _ := short.GetShortenedURL(req.Context(), record.OriginalURL)
+			authBearerCookie, err := req.Cookie("userid")
+			if err == nil {
+				authBearerStr = authBearerCookie.Value
+			}
 
-			responseStruct = append(responseStruct, URLShortenResponse{
-				CorrelationID: record.CorrelationID,
-				ShortURL:      shortenedURL,
-			})
+			shortenedURL, userID, err := short.GetShortenedURL(req.Context(), record.OriginalURL, authBearerStr)
+			if authBearerStr == "" {
+				authBearerStr, err = auth.BuildJWTString(userID)
+				if err != nil {
+					http.Error(res,
+						fmt.Sprintf("Failed to generate berarer for the user id %d", userID),
+						http.StatusInternalServerError)
+					return
+				}
+			}
+
+			var linkExist *app.URLExistError
+			if !errors.As(err, &linkExist) {
+				responseStruct = append(responseStruct, URLShortenResponse{
+					CorrelationID: record.CorrelationID,
+					ShortURL:      shortenedURL,
+				})
+
+			}
 
 		}
 
