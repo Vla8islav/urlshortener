@@ -24,12 +24,11 @@ func main() {
 	}
 	defer s.Close()
 
-	short, _ := app.NewURLShortenService(ctx, s)
+	short, _ := app.NewGoBooruService(ctx, s)
 
 	// создаём предустановленный регистратор zap
 	logger, errLog := zap.NewDevelopment()
-	if errLog != nil {
-		// вызываем панику, если ошибка
+	if errLog != nil { /* вызываем панику, если ошибка */
 		panic(errLog)
 	}
 	defer logger.Sync()
@@ -48,34 +47,6 @@ func main() {
 		logging.WithLogging(sugaredLogger,
 			cookies.SetUserCookie(&s,
 				handlers.PingHandler(&s))))
-
-	r.HandleFunc("/{slug:[A-Za-z]+}",
-		compression.GzipHandle(
-			logging.WithLogging(sugaredLogger,
-				cookies.SetUserCookie(&s,
-					handlers.ExpandHandler(short)))))
-
-	r.HandleFunc("/api/shorten",
-		compression.GzipHandle(
-			logging.WithLogging(sugaredLogger,
-				cookies.SetUserCookie(&s,
-					handlers.RootPageJSONHandler(short)))))
-
-	r.HandleFunc("/api/shorten/batch",
-		compression.GzipHandle(
-			logging.WithLogging(sugaredLogger,
-				cookies.SetUserCookie(&s,
-					handlers.RootPageJSONBatchHandler(short)))))
-
-	r.HandleFunc("/api/user/urls",
-		compression.GzipHandle(
-			logging.WithLogging(sugaredLogger,
-				cookies.SetUserCookie(&s,
-					handlers.GetUserURLSHandler(short))))).Methods("GET")
-	r.HandleFunc("/api/user/urls", logging.WithLogging(sugaredLogger,
-		compression.GzipHandle(
-			cookies.SetUserCookie(&s,
-				handlers.DeleteUserURLSHandler(short))))).Methods("DELETE")
 
 	err = http.ListenAndServe(configuration.ReadFlags().ServerAddress, r)
 	if err != nil {

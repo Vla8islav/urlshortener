@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func DeleteUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
+func DeleteUserURLSHandler(short app.GoBooruService) http.HandlerFunc {
 	if short == nil {
 		panic("Service wasn't initialised")
 	}

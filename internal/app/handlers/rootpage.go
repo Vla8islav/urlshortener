@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func RootPageHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
+func RootPageHandler(short app.GoBooruService) http.HandlerFunc {
 	if short == nil {
 		panic("Underlying infrastructure isn't initialised")
 	}

@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func RootPageJSONHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
+func RootPageJSONHandler(short app.GoBooruService) http.HandlerFunc {
 	if short == nil {
 		panic("Underlying infrastructure isn't initialised")
 	}

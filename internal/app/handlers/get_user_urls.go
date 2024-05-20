@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func GetUserURLSHandler(short app.URLShortenServiceMethods) http.HandlerFunc {
+func GetUserURLSHandler(short app.GoBooruService) http.HandlerFunc {
 	if short == nil {
 		panic("Service wasn't initialised")
 	}
