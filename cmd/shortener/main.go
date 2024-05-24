@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/Vla8islav/urlshortener/internal/app"
+	"github.com/Vla8islav/urlshortener/internal/app/api"
 	"github.com/Vla8islav/urlshortener/internal/app/compression"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
 	"github.com/Vla8islav/urlshortener/internal/app/cookies"
@@ -24,7 +24,7 @@ func main() {
 	}
 	defer s.Close()
 
-	short, _ := app.NewGoBooruService(ctx, s)
+	short, _ := api.NewGoBooruService(ctx, s)
 
 	// создаём предустановленный регистратор zap
 	logger, errLog := zap.NewDevelopment()
@@ -37,16 +37,17 @@ func main() {
 	sugaredLogger := *logger.Sugar()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/",
-		compression.GzipHandle(
-			logging.WithLogging(sugaredLogger,
-				cookies.SetUserCookie(&s,
-					handlers.RootPageHandler(short)))))
 
 	r.HandleFunc("/ping",
 		logging.WithLogging(sugaredLogger,
 			cookies.SetUserCookie(&s,
 				handlers.PingHandler(&s))))
+
+	r.HandleFunc("/register",
+		compression.GzipHandle(
+			logging.WithLogging(sugaredLogger,
+				cookies.SetUserCookie(&s,
+					handlers.RegisterHandler(short)))))
 
 	err = http.ListenAndServe(configuration.ReadFlags().ServerAddress, r)
 	if err != nil {

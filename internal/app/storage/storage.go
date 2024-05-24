@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"github.com/Vla8islav/urlshortener/internal/app/configuration"
 )
 
@@ -12,15 +13,8 @@ type URLPair struct {
 }
 
 type Storage interface {
-	AddURLPair(ctx context.Context, shortenedURL string, fullURL string, uuidStr string, userID int)
-	AddURLPairInMemory(ctx context.Context, shortenedURL string, fullURL string, uuidStr string, userID int)
-	GetFullURL(ctx context.Context, shortenedURL string) (string, error)
-	GetShortenedURL(ctx context.Context, fullURL string) (string, int, bool)
-
-	GetAllURLRecordsByUser(ctx context.Context, userID int) ([]URLPair, error)
-	GetNewUserID(ctx context.Context) (int, error)
-
-	DeleteURL(ctx context.Context, shortenedURL string, userID int) error
+	CreateUser(ctx context.Context, username string, password string) (int, error)
+	GetUserByUsername(ctx context.Context, username string) (int, error)
 
 	Ping(ctx context.Context) error
 	Close()
@@ -29,6 +23,7 @@ type Storage interface {
 func GetStorage(ctx context.Context) (Storage, error) {
 	if configuration.ReadFlags().DBConnectionString != "" {
 		return NewPostgresStorage(ctx)
+	} else {
+		return nil, errors.New("empty db connection string")
 	}
-	return NewMakeshiftStorage(ctx)
 }
