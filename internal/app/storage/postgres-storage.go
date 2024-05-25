@@ -22,12 +22,25 @@ type UsersTableRecord struct {
 	Deleted  sql.NullInt32  `json:"deleted"`
 }
 
+type TablesRecord struct {
+	Datname sql.NullString `json:"datname"`
+}
+
 func NewPostgresStorage(ctx context.Context) (Storage, error) {
 	instance := new(PostgresStorage)
 	var err error
 	instance.connPool, err = pgxpool.New(ctx, configuration.ReadFlags().DBConnectionString)
 	if err != nil {
 		panic("Couldn't connect to the postgres server" + err.Error())
+	}
+
+	row := instance.connPool.QueryRow(ctx, "SELECT datname FROM pg_catalog.pg_database WHERE datname = 'gobooru'")
+	var record TablesRecord
+	if err = row.Scan(&record.Datname); err != nil {
+		_, err = instance.connPool.Exec(ctx, "CREATE DATABASE gobooru")
+		if err != nil {
+			panic("Couldn't create postgres gobooru database" + err.Error())
+		}
 	}
 
 	_, err = instance.connPool.Exec(ctx, "CREATE TABLE IF NOT EXISTS users (UserID SERIAL PRIMARY KEY, Username varchar(20), Password varchar(100), Deleted bool DEFAULT FALSE)")
@@ -43,7 +56,7 @@ func (s PostgresStorage) Close() {
 }
 
 func (s PostgresStorage) Ping(ctx context.Context) error {
-	_, err := s.connPool.Exec(ctx, "select * from url_mapping limit 1")
+	_, err := s.connPool.Exec(ctx, "select * from users limit 1")
 	return err
 }
 
