@@ -53,13 +53,6 @@ func TestExpandHandler(t *testing.T) {
 			defer res.Body.Close()
 			// проверяем код ответа
 			assert.Equal(t, testData.want.code, res.StatusCode)
-			//resBody, err := io.ReadAll(res.Body)
-			//
-			//require.NoError(t, err)
-			//if w.Code >= 200 && w.Code <= 299 {
-			//	assert.JSONEq(t, testData.want.response, string(resBody))
-			//	assert.Equal(t, testData.want.contentType, res.Header.Get("Content-Type"))
-			//}
 
 		})
 	}

@@ -13,7 +13,7 @@ func TestGenerateString(t *testing.T) {
 		letterString string
 	}{
 		{
-			testName:     "Negative number",
+			testName:     "Some short url code",
 			len:          len("EwHXdJfB"),
 			letterString: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
 		},
