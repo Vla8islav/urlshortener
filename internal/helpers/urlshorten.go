@@ -11,14 +11,14 @@ const AllowedSymbolsInShortnedURL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ
 const GeneratedShortenedURLSample = "EwHXdJfB"
 
 func GenerateShortenedURL() (string, error) {
-	fullPath, err := url.JoinPath(config.ReadFlags().ShortenerBaseURL, GenerateShortenedUrlUid())
+	fullPath, err := url.JoinPath(config.ReadFlags().ShortenerBaseURL, GenerateShortenedURLUID())
 	if err != nil {
 		return fullPath, err
 	}
 	return fullPath, nil
 }
 
-func GenerateShortenedUrlUid() string {
+func GenerateShortenedURLUID() string {
 	return GenerateString(len(GeneratedShortenedURLSample), AllowedSymbolsInShortnedURL)
 }
 

@@ -5,7 +5,7 @@ type URL struct {
 	ShortenedURL string
 }
 
-type UrlShortenRepository interface {
+type URLShortenRepository interface {
 	GetByFull(fullURL string) (URL, error)
 	GetByShortened(shortenedURL string) (URL, error)
 }

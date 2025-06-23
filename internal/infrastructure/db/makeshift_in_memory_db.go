@@ -3,7 +3,7 @@ package db
 import (
 	"github.com/Vla8islav/urlshortener/internal/domain"
 	"github.com/Vla8islav/urlshortener/internal/helpers"
-	"github.com/Vla8islav/urlshortener/internal/infrastructure/err_list"
+	"github.com/Vla8islav/urlshortener/internal/infrastructure/errlist"
 	"sync"
 )
 
@@ -30,7 +30,7 @@ func (s MakeshiftInMemoryDB) GetByFull(fullURL string) (domain.URL, error) {
 	shortURL, exists := s.fullURLToShort[fullURL]
 	var err error
 	if !exists {
-		shortURL = helpers.GenerateShortenedUrlUid()
+		shortURL = helpers.GenerateShortenedURLUID()
 		s.fullURLToShort[fullURL] = shortURL
 		s.shortToFullURL[shortURL] = fullURL
 
@@ -44,7 +44,7 @@ func (s MakeshiftInMemoryDB) GetByFull(fullURL string) (domain.URL, error) {
 func (s MakeshiftInMemoryDB) GetByShortened(shortURL string) (domain.URL, error) {
 	fullURL, exists := s.shortToFullURL[shortURL]
 	if !exists {
-		return domain.URL{}, err_list.ErrURLNotFound
+		return domain.URL{}, errlist.ErrURLNotFound
 
 	}
 	return domain.URL{

@@ -3,7 +3,7 @@ package handlers
 import (
 	"errors"
 	helpers2 "github.com/Vla8islav/urlshortener/internal/helpers"
-	"github.com/Vla8islav/urlshortener/internal/infrastructure/err_list"
+	"github.com/Vla8islav/urlshortener/internal/infrastructure/errlist"
 	"net/http"
 	"strings"
 )
@@ -21,7 +21,7 @@ func (h *Handler) ExpandHandler(res http.ResponseWriter, req *http.Request) {
 		if err == nil {
 			res.Header().Add("Location", urlObj.FullURL)
 			res.WriteHeader(http.StatusTemporaryRedirect)
-		} else if errors.Is(err, err_list.ErrURLNotFound) {
+		} else if errors.Is(err, errlist.ErrURLNotFound) {
 			http.Error(res, "URLRepo not found", http.StatusNotFound)
 		} else {
 			http.Error(res, "problem occured while extracting URLRepo: "+err.Error(), http.StatusInternalServerError)

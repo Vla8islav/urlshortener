@@ -5,10 +5,10 @@ import (
 )
 
 type URLShortenService struct {
-	URLRepo domain.UrlShortenRepository
+	URLRepo domain.URLShortenRepository
 }
 
-func NewURLShortenService(repo domain.UrlShortenRepository) *URLShortenService {
+func NewURLShortenService(repo domain.URLShortenRepository) *URLShortenService {
 	return &URLShortenService{URLRepo: repo}
 }
 

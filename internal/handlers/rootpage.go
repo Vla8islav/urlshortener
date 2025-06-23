@@ -32,7 +32,7 @@ func (h *Handler) RootPageHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	shortenedUrlObj, err := h.Service.GetShortURL(bodyString)
+	shortenedURLObj, err := h.Service.GetShortURL(bodyString)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		http.Error(res, "problem occured while trying to fetch shortened url: "+err.Error(), http.StatusInternalServerError)
@@ -40,11 +40,11 @@ func (h *Handler) RootPageHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	shortenedUrl := config.ReadFlags().ShortenerBaseURL + "/" + shortenedUrlObj.ShortenedURL
+	shortenedURL := config.ReadFlags().ShortenerBaseURL + "/" + shortenedURLObj.ShortenedURL
 	res.WriteHeader(http.StatusCreated)
 	res.Header().Add("Content-Type", "text/plain")
-	res.Header().Add("Content-Length", fmt.Sprintf("%d", len(shortenedUrl)))
-	_, err = res.Write([]byte(shortenedUrl))
+	res.Header().Add("Content-Length", fmt.Sprintf("%d", len(shortenedURL)))
+	_, err = res.Write([]byte(shortenedURL))
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		http.Error(res, "problem occured while writing url: "+err.Error(), http.StatusInternalServerError)
