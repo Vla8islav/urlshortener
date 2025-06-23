@@ -1,17 +1,21 @@
 package handlers
 
 import (
-	"github.com/Vla8islav/urlshortener/internal/app"
+	"github.com/Vla8islav/urlshortener/internal/application"
+	"github.com/Vla8islav/urlshortener/internal/infrastructure/db"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 )
 
 func TestExpandHandler(t *testing.T) {
 
-	shortenedURL := app.GetShortenedURL("http://ya.ru")
+	repo := db.GetInstance()
+	service := application.NewURLShortenService(repo)
+	handler := NewHandler(service)
+
+	shortenedURL, _ := handler.Service.GetShortURL("http://ya.ru")
 
 	type expectedResult struct {
 		code int
@@ -25,12 +29,8 @@ func TestExpandHandler(t *testing.T) {
 		{
 			name: "Successful link generation",
 			request: func() *http.Request {
-				u, err := url.Parse(shortenedURL)
-				if err != nil {
-					panic(err)
-				}
 
-				validRequest := httptest.NewRequest(http.MethodGet, u.Path, nil)
+				validRequest := httptest.NewRequest(http.MethodGet, "/"+shortenedURL.ShortenedURL, nil)
 				validRequest.Header = http.Header{
 					"Content-Type": []string{"text/plain"},
 				}
@@ -46,7 +46,7 @@ func TestExpandHandler(t *testing.T) {
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 
-			ExpandHandler(w, testData.request())
+			handler.ExpandHandler(w, testData.request())
 
 			res := w.Result()
 			// получаем и проверяем тело запроса

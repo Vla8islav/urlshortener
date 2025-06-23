@@ -1,4 +1,4 @@
-package configuration
+package config
 
 import (
 	"flag"
@@ -11,10 +11,10 @@ type Options struct {
 	ShortenerBaseURL string `env:"BASE_URL"`
 }
 
-var instance *Options
+var optionsInstance *Options
 
 func ReadFlags() *Options {
-	if instance == nil {
+	if optionsInstance == nil {
 		cmdOptions := getCmdOptions()
 		envOptions := getEnvOptions()
 
@@ -22,9 +22,9 @@ func ReadFlags() *Options {
 		// env options are the priority
 		mergeOptions(&finalOptions, envOptions)
 		mergeOptions(&finalOptions, cmdOptions)
-		instance = &finalOptions
+		optionsInstance = &finalOptions
 	}
-	return instance
+	return optionsInstance
 }
 
 func mergeOptions(mergeInto *Options, newValues Options) {

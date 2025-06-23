@@ -1,7 +1,9 @@
 package handlers
 
 import (
-	"github.com/Vla8islav/urlshortener/internal/app/configuration"
+	"github.com/Vla8islav/urlshortener/internal/application"
+	"github.com/Vla8islav/urlshortener/internal/infrastructure/config"
+	"github.com/Vla8islav/urlshortener/internal/infrastructure/db"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io"
@@ -12,6 +14,10 @@ import (
 )
 
 func TestRootPageHandler(t *testing.T) {
+	repo := db.GetInstance()
+	service := application.NewURLShortenService(repo)
+	handler := NewHandler(service)
+
 	type expectedResult struct {
 		code        int
 		contentType string
@@ -49,7 +55,7 @@ func TestRootPageHandler(t *testing.T) {
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 
-			RootPageHandler(w, testData.request)
+			handler.RootPageHandler(w, testData.request)
 
 			res := w.Result()
 			// проверяем код ответа
@@ -59,7 +65,7 @@ func TestRootPageHandler(t *testing.T) {
 			resBody, err := io.ReadAll(res.Body)
 
 			require.NoError(t, err)
-			regexToValidateTheLink := strings.TrimRight(configuration.ReadFlags().ShortenerBaseURL, "/") + "/[a-zA-Z]{8}"
+			regexToValidateTheLink := strings.TrimRight(config.ReadFlags().ShortenerBaseURL, "/") + "/[a-zA-Z]{8}"
 			if w.Code >= 200 && w.Code <= 299 {
 				assert.Regexp(t, regexToValidateTheLink, string(resBody))
 				assert.Equal(t, testData.want.contentType, res.Header.Get("Content-Type"))
