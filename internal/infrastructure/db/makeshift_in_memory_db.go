@@ -16,11 +16,9 @@ var instance *MakeshiftInMemoryDB = nil
 
 func GetInstance() *MakeshiftInMemoryDB {
 	sync.OnceFunc(func() {
-		if instance == nil {
-			instance = new(MakeshiftInMemoryDB)
-			instance.fullURLToShort = make(map[string]string)
-			instance.shortToFullURL = make(map[string]string)
-		}
+		instance = new(MakeshiftInMemoryDB)
+		instance.fullURLToShort = make(map[string]string)
+		instance.shortToFullURL = make(map[string]string)
 	})()
 
 	return instance

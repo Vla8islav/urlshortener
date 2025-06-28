@@ -17,16 +17,17 @@ func (h *Handler) ExpandHandler(res http.ResponseWriter, req *http.Request) {
 	uri := strings.Trim(req.RequestURI, "/")
 	if helpers2.MatchesGeneratedURLFormat(uri) {
 		urlObj, err := h.Service.GetLongURL(uri)
-
-		if err == nil {
+		switch {
+		case err == nil:
 			res.Header().Add("Location", urlObj.FullURL)
 			res.WriteHeader(http.StatusTemporaryRedirect)
-		} else if errors.Is(err, errlist.ErrURLNotFound) {
+		case errors.Is(err, errlist.ErrURLNotFound):
 			http.Error(res, "URLRepo not found", http.StatusNotFound)
-		} else {
-			http.Error(res, "problem occured while extracting URLRepo: "+err.Error(), http.StatusInternalServerError)
-			return
+		default:
+			http.Error(res, "problem occured while extracting URLRepo: "+err.Error(),
+				http.StatusInternalServerError)
 		}
+
 	} else {
 		http.Error(res, "Invalid url format", http.StatusBadRequest)
 	}
