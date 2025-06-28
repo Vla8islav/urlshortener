@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/Vla8islav/urlshortener/internal/application"
+	"github.com/Vla8islav/urlshortener/internal/domain"
 	"github.com/gorilla/mux"
 )
 
@@ -13,9 +13,9 @@ func InitRouter(handler *Handler) *mux.Router {
 }
 
 type Handler struct {
-	Service *application.URLShortenService
+	Service domain.URLShortenService
 }
 
-func NewHandler(service *application.URLShortenService) *Handler {
+func NewHandler(service domain.URLShortenService) *Handler {
 	return &Handler{Service: service}
 }
