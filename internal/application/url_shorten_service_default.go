@@ -12,10 +12,10 @@ func NewURLShortenService(repo domain.URLShortenRepository) domain.URLShortenSer
 	return &urlShortenServiceDefault{URLRepo: repo}
 }
 
-func (u *urlShortenServiceDefault) GetShortURL(longURL string) (domain.URL, error) {
+func (u *urlShortenServiceDefault) GetByFull(longURL string) (domain.URL, error) {
 	return u.URLRepo.GetByFull(longURL)
 }
 
-func (u *urlShortenServiceDefault) GetLongURL(shortURL string) (domain.URL, error) {
+func (u *urlShortenServiceDefault) GetByShortened(shortURL string) (domain.URL, error) {
 	return u.URLRepo.GetByShortened(shortURL)
 }

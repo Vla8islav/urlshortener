@@ -16,7 +16,7 @@ func (h *Handler) ExpandHandler(res http.ResponseWriter, req *http.Request) {
 
 	uri := strings.Trim(req.RequestURI, "/")
 	if helpers2.MatchesGeneratedURLFormat(uri) {
-		urlObj, err := h.Service.GetLongURL(uri)
+		urlObj, err := h.Service.GetByShortened(uri)
 		switch {
 		case err == nil:
 			res.Header().Add("Location", urlObj.FullURL)

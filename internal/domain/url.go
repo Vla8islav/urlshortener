@@ -11,6 +11,6 @@ type URLShortenRepository interface {
 }
 
 type URLShortenService interface {
-	GetShortURL(longURL string) (URL, error)
-	GetLongURL(shortURL string) (URL, error)
+	GetByFull(longURL string) (URL, error)
+	GetByShortened(shortURL string) (URL, error)
 }
