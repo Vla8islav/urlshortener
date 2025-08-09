@@ -45,14 +45,14 @@ func TestShortenHandler(t *testing.T) {
 			name:    "Successful link generation",
 			request: validRequest,
 			want: expectedResult{
-				code:        200,
+				code:        http.StatusCreated,
 				contentType: "application/json",
 			},
 		},
 		{
 			name:    "400 response for GET request",
 			request: getRequest,
-			want:    expectedResult{code: 400},
+			want:    expectedResult{code: http.StatusBadRequest},
 		},
 	}
 

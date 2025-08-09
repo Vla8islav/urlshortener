@@ -44,10 +44,10 @@ func (h *Handler) ShortenHandler(res http.ResponseWriter, req *http.Request) {
 	}
 	res.Header().Add("Content-Type", "application/json")
 	res.Header().Add("Content-Length", fmt.Sprintf("%d", len(resp)))
+	res.WriteHeader(http.StatusCreated)
 	_, err = res.Write(resp)
 	if err != nil {
 		http.Error(res, "couldn't write a response "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	res.WriteHeader(http.StatusOK)
 }
