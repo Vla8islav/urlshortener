@@ -9,6 +9,7 @@ func InitRouter(handler *Handler) *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/", handler.RootPageHandler)
 	r.HandleFunc("/{slug:[A-Za-z]+}", handler.ExpandHandler)
+	r.HandleFunc("/api/shorten", handler.ExpandHandler)
 	return r
 }
 

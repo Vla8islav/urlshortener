@@ -36,7 +36,6 @@ func (h *Handler) RootPageHandler(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		http.Error(res, "problem occured while trying to fetch shortened url: "+err.Error(), http.StatusInternalServerError)
-
 		return
 	}
 
