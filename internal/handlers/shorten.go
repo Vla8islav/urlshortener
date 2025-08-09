@@ -27,12 +27,12 @@ func (h *Handler) ShortenHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fullUrl, err := h.Service.GetByFull(reqPayload.FullURL)
+	fullURL, err := h.Service.GetByFull(reqPayload.FullURL)
 	if err != nil {
 		http.Error(res, "couldn't shorten url "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fullShortenedURL, err := helpers.GetFullShortenedURL(fullUrl.ShortenedURL)
+	fullShortenedURL, err := helpers.GetFullShortenedURL(fullURL.ShortenedURL)
 	if err != nil {
 		http.Error(res, "couldn't generate full shortened url "+err.Error(), http.StatusInternalServerError)
 		return
