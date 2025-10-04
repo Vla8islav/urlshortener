@@ -6,6 +6,7 @@ import (
 	"github.com/Vla8islav/urlshortener/internal/infrastructure/config"
 	"io"
 	"net/http"
+	"strings"
 )
 
 func (h *Handler) RootPageHandler(res http.ResponseWriter, req *http.Request) {
@@ -14,7 +15,7 @@ func (h *Handler) RootPageHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if req.Header.Get("Content-Type") != "text/plain; charset=utf-8" {
+	if !strings.Contains(req.Header.Get("Content-Type"), "text/plain") {
 		http.Error(res, "Content type must be text/plain", http.StatusBadRequest)
 		return
 	}
