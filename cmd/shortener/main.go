@@ -20,6 +20,7 @@ func main() {
 	router := handlers.InitRouter(handler)
 
 	router.Use(middleware.WithLogging(sugaredLogger))
+	router.Use(middleware.WithGzipCompression())
 
 	sugaredLogger.Infow(
 		"Starting server",
