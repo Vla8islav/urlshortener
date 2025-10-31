@@ -11,7 +11,7 @@ import (
 func tempFilePath(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
-	return filepath.Join(dir, "sample_db.json")
+	return filepath.Join(dir, strconv.Itoa(rand.Int())+"sample_db.json")
 }
 
 func randomRecord() Record {
@@ -49,7 +49,7 @@ func TestDataWriterReader_WriteTwiceReadOnce(t *testing.T) {
 	assert.NoError(t, err, "ReadRecords error")
 
 	assert.Len(t, *got, 2, "ReadRecords length")
-	assert.Equal(t, recs1, *got, "ReadRecords content")
+	assert.Equal(t, recs2, *got, "ReadRecords content")
 }
 
 func TestNewDataReader_FileNotFound(t *testing.T) {
