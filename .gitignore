@@ -21,3 +21,8 @@ vendor/
 # IDEs directories
 .idea
 .vscode
+
+# folder metadata
+.DS_Store
+
+makeshift_db.json
