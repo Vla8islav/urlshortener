@@ -11,7 +11,7 @@ type DataWriter struct {
 }
 
 func NewDataWriter(filename string) (*DataWriter, error) {
-	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +49,10 @@ func NewDataReader(filename string) (*DataReader, error) {
 		file:    file,
 		decoder: d,
 	}, nil
+}
+
+func (p *DataReader) Close() error {
+	return p.file.Close()
 }
 
 func (c *DataReader) ReadRecords() (*[]Record, error) {

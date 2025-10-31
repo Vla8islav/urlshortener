@@ -13,13 +13,14 @@ type MakeshiftInMemoryDB struct {
 }
 
 var instance *MakeshiftInMemoryDB = nil
+var once sync.Once
 
 func GetInstance() *MakeshiftInMemoryDB {
-	sync.OnceFunc(func() {
+	once.Do(func() {
 		instance = new(MakeshiftInMemoryDB)
 		instance.fullURLToShort = make(map[string]string)
 		instance.shortToFullURL = make(map[string]string)
-	})()
+	})
 
 	return instance
 }
