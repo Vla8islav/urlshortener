@@ -9,6 +9,7 @@ import (
 type Options struct {
 	ServerAddress    string `env:"SERVER_ADDRESS"`
 	ShortenerBaseURL string `env:"BASE_URL"`
+	DatabaseFile     string `env:"FILE_STORAGE_PATH"`
 }
 
 var optionsInstance *Options
@@ -50,6 +51,7 @@ func getCmdOptions() Options {
 	opt := Options{}
 	flag.StringVar(&opt.ServerAddress, "a", "localhost:8080", "port on which the server should run")
 	flag.StringVar(&opt.ShortenerBaseURL, "b", "http://localhost:8080", "base url for shortened links")
+	flag.StringVar(&opt.ShortenerBaseURL, "f", "makeshift_db.json", "file to save data to")
 	flag.Parse()
 	return opt
 }

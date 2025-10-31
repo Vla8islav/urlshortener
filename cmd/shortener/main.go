@@ -14,7 +14,7 @@ func main() {
 
 	sugaredLogger := logger.NewSugaredLogger()
 
-	repo := db.GetInstance()
+	repo := db.GetFileDBInstance(config.ReadFlags().DatabaseFile)
 	service := application.NewURLShortenService(repo)
 	handler := handlers.NewHandler(service)
 	router := handlers.InitRouter(handler)
