@@ -22,22 +22,22 @@ func NewDataWriter(filename string) (*DataWriter, error) {
 	}, nil
 }
 
-func (p *DataWriter) WriteRecords(records *[]Record) error {
-	if err := p.file.Truncate(0); err != nil {
+func (dw *DataWriter) WriteRecords(records *[]Record) error {
+	if err := dw.file.Truncate(0); err != nil {
 		return err
 	}
-	if _, err := p.file.Seek(0, 0); err != nil {
+	if _, err := dw.file.Seek(0, 0); err != nil {
 		return err
 	}
-	err := p.encoder.Encode(records)
+	err := dw.encoder.Encode(records)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *DataWriter) Close() error {
-	return p.file.Close()
+func (dw *DataWriter) Close() error {
+	return dw.file.Close()
 }
 
 type DataReader struct {
@@ -57,13 +57,13 @@ func NewDataReader(filename string) (*DataReader, error) {
 	}, nil
 }
 
-func (p *DataReader) Close() error {
-	return p.file.Close()
+func (dr *DataReader) Close() error {
+	return dr.file.Close()
 }
 
-func (c *DataReader) ReadRecords() (*[]Record, error) {
+func (dr *DataReader) ReadRecords() (*[]Record, error) {
 	var records []Record
-	err := c.decoder.Decode(&records)
+	err := dr.decoder.Decode(&records)
 	if err != nil {
 		return nil, err
 	}

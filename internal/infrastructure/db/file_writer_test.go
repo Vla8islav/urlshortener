@@ -42,8 +42,8 @@ func TestDataWriterReader_WriteTwiceReadOnce(t *testing.T) {
 	assert.NoError(t, err, "writer Close error: %v", err)
 
 	r, err := NewDataReader(path)
-	defer r.Close()
 	assert.NoError(t, err, "NewDataReader error")
+	defer r.Close()
 
 	got, err := r.ReadRecords()
 	assert.NoError(t, err, "ReadRecords error")
