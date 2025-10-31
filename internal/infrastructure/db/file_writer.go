@@ -11,7 +11,7 @@ type DataWriter struct {
 }
 
 func NewDataWriter(filename string) (*DataWriter, error) {
-	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return nil, err
 	}
@@ -23,6 +23,12 @@ func NewDataWriter(filename string) (*DataWriter, error) {
 }
 
 func (p *DataWriter) WriteRecords(records *[]Record) error {
+	if err := p.file.Truncate(0); err != nil {
+		return err
+	}
+	if _, err := p.file.Seek(0, 0); err != nil {
+		return err
+	}
 	err := p.encoder.Encode(records)
 	if err != nil {
 		return err

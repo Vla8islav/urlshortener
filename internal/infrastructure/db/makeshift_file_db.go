@@ -25,12 +25,13 @@ type MakeshiftFileDB struct {
 	records *[]Record
 	writer  *DataWriter
 	reader  *DataReader
+	mu      sync.RWMutex
 }
 
 var fileDBInstance *MakeshiftFileDB = nil
 
 func GetFileDBInstance(filename string) *MakeshiftFileDB {
-	sync.OnceFunc(func() {
+	once.Do(func() {
 		fileDBInstance = new(MakeshiftFileDB)
 		writer, err := NewDataWriter(filename)
 		if err != nil {
@@ -50,12 +51,14 @@ func GetFileDBInstance(filename string) *MakeshiftFileDB {
 				panic("Couldn't write records on disk " + err.Error())
 			}
 		}
-	})()
+	})
 
 	return fileDBInstance
 }
 
-func (s MakeshiftFileDB) GetByFull(fullURL string) (domain.URL, error) {
+func (s *MakeshiftFileDB) GetByFull(fullURL string) (domain.URL, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
 	searchResult, err := s.search(fullURL, "")
 	if err == nil {
@@ -80,7 +83,10 @@ func (s MakeshiftFileDB) GetByFull(fullURL string) (domain.URL, error) {
 	return domain.URL{}, err
 }
 
-func (s MakeshiftFileDB) GetByShortened(shortURL string) (domain.URL, error) {
+func (s *MakeshiftFileDB) GetByShortened(shortURL string) (domain.URL, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	searchResult, err := s.search("", shortURL)
 	if err == nil {
 		return convertToURL(searchResult), nil
@@ -89,7 +95,7 @@ func (s MakeshiftFileDB) GetByShortened(shortURL string) (domain.URL, error) {
 	return domain.URL{}, err
 }
 
-func (s MakeshiftFileDB) search(fullURL, shortenedURL string) (Record, error) {
+func (s *MakeshiftFileDB) search(fullURL, shortenedURL string) (Record, error) {
 	for _, record := range *s.records {
 		if record.FullURL == fullURL && len(fullURL) > 0 {
 			return record, nil
@@ -101,7 +107,7 @@ func (s MakeshiftFileDB) search(fullURL, shortenedURL string) (Record, error) {
 	return Record{}, errlist.ErrURLNotFound
 }
 
-func (s MakeshiftFileDB) getHighestID() int64 {
+func (s *MakeshiftFileDB) getHighestID() int64 {
 	id := int64(0)
 	for _, record := range *s.records {
 		if record.ID > id {

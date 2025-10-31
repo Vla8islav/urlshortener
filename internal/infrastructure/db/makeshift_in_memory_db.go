@@ -4,7 +4,6 @@ import (
 	"github.com/Vla8islav/urlshortener/internal/domain"
 	"github.com/Vla8islav/urlshortener/internal/helpers"
 	"github.com/Vla8islav/urlshortener/internal/infrastructure/errlist"
-	"sync"
 )
 
 type MakeshiftInMemoryDB struct {
@@ -13,7 +12,6 @@ type MakeshiftInMemoryDB struct {
 }
 
 var instance *MakeshiftInMemoryDB = nil
-var once sync.Once
 
 func GetInstance() *MakeshiftInMemoryDB {
 	once.Do(func() {
