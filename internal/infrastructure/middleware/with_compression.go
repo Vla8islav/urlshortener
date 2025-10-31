@@ -39,7 +39,7 @@ func WithGzipCompression() func(http.Handler) http.Handler {
 		return http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
 				// unpacking
-				if strings.EqualFold(r.Header.Get("Accept-Encoding"), "gzip") {
+				if strings.EqualFold(r.Header.Get("Content-Encoding"), "gzip") {
 					gr, err := gzip.NewReader(r.Body)
 					if err != nil {
 						http.Error(w, "failed to use gzip to read a body", http.StatusInternalServerError)
