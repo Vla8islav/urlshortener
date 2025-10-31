@@ -24,3 +24,5 @@ vendor/
 
 # folder metadata
 .DS_Store
+
+makeshift_db.json
