@@ -22,7 +22,7 @@ type Record struct {
 }
 
 type MakeshiftFileDB struct {
-	records []Record
+	records *[]Record
 	writer  *DataWriter
 	reader  *DataReader
 }
@@ -42,6 +42,14 @@ func GetFileDBInstance(filename string) *MakeshiftFileDB {
 		}
 		fileDBInstance.writer = writer
 		fileDBInstance.reader = reader
+		fileDBInstance.records, err = reader.ReadRecords()
+		if err != nil {
+			fileDBInstance.records = &[]Record{}
+			err = writer.WriteRecords(fileDBInstance.records)
+			if err != nil {
+				panic("Couldn't write records on disk " + err.Error())
+			}
+		}
 	})()
 
 	return fileDBInstance
@@ -60,11 +68,12 @@ func (s MakeshiftFileDB) GetByFull(fullURL string) (domain.URL, error) {
 			FullURL:      fullURL,
 			ShortenedURL: helpers.GenerateShortenedURLUID(),
 		}
-		s.records = append(s.records, newRecord)
+		*s.records = append(*s.records, newRecord)
 		err = s.writer.WriteRecords(s.records)
 		if err != nil {
 			return domain.URL{}, err
 		}
+		return convertToURL(newRecord), nil
 
 	}
 
@@ -81,7 +90,7 @@ func (s MakeshiftFileDB) GetByShortened(shortURL string) (domain.URL, error) {
 }
 
 func (s MakeshiftFileDB) search(fullURL, shortenedURL string) (Record, error) {
-	for _, record := range s.records {
+	for _, record := range *s.records {
 		if record.FullURL == fullURL && len(fullURL) > 0 {
 			return record, nil
 		}
@@ -93,10 +102,10 @@ func (s MakeshiftFileDB) search(fullURL, shortenedURL string) (Record, error) {
 }
 
 func (s MakeshiftFileDB) getHighestID() int64 {
-	id := int64(1)
-	for _, record := range s.records {
+	id := int64(0)
+	for _, record := range *s.records {
 		if record.ID > id {
-			id = record.ID + 1
+			id = record.ID
 		}
 	}
 	return id

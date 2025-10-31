@@ -36,6 +36,10 @@ func mergeOptions(mergeInto *Options, newValues Options) {
 	if mergeInto.ShortenerBaseURL == "" && newValues.ShortenerBaseURL != "" {
 		mergeInto.ShortenerBaseURL = newValues.ShortenerBaseURL
 	}
+
+	if mergeInto.DatabaseFile == "" && newValues.DatabaseFile != "" {
+		mergeInto.DatabaseFile = newValues.DatabaseFile
+	}
 }
 
 func getEnvOptions() Options {
@@ -51,7 +55,7 @@ func getCmdOptions() Options {
 	opt := Options{}
 	flag.StringVar(&opt.ServerAddress, "a", "localhost:8080", "port on which the server should run")
 	flag.StringVar(&opt.ShortenerBaseURL, "b", "http://localhost:8080", "base url for shortened links")
-	flag.StringVar(&opt.ShortenerBaseURL, "f", "makeshift_db.json", "file to save data to")
+	flag.StringVar(&opt.DatabaseFile, "f", "makeshift_db.json", "file to save data to")
 	flag.Parse()
 	return opt
 }

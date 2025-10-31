@@ -22,7 +22,7 @@ func NewDataWriter(filename string) (*DataWriter, error) {
 	}, nil
 }
 
-func (p *DataWriter) WriteRecords(records []Record) error {
+func (p *DataWriter) WriteRecords(records *[]Record) error {
 	err := p.encoder.Encode(records)
 	if err != nil {
 		return err
@@ -51,11 +51,11 @@ func NewDataReader(filename string) (*DataReader, error) {
 	}, nil
 }
 
-func (c *DataReader) ReadRecords() ([]Record, error) {
+func (c *DataReader) ReadRecords() (*[]Record, error) {
 	var records []Record
 	err := c.decoder.Decode(&records)
 	if err != nil {
 		return nil, err
 	}
-	return records, nil
+	return &records, nil
 }
